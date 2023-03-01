@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = async ({ github, context }, versionPostfix) => {
-    console.log(versionPostfix);
-    console.log(__dirname);
+    console.log('versionPostfix', versionPostfix);
 
     const packageJSONPath = path.join(
         __dirname,
@@ -18,7 +17,7 @@ module.exports = async ({ github, context }, versionPostfix) => {
 
     packageJSON.name = '@vercel/remix-run-dev'
 
-    if (versionPostfix === "") {
+    if (versionPostfix !== "") {
         packageJSON.version = `${packageJSON.version}-${versionPostfix}`;
     }
 
