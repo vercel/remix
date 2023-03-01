@@ -2,12 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = async ({ github, context }, versionPostfix) => {
-    const versionPostfixRegex = /[a-z]+\.\d+/;
-
-    if (!versionPostfixRegex.test(versionPostfix)) {
-        throw new Error(`version-postfix, '${versionPostfix}', is invalid. Must be a word and a number seperated by a '.' character. Example: 'patch.1'`)
-    }
-
     const packageJSONPath = path.join(
         __dirname,
         '..',
@@ -22,6 +16,9 @@ module.exports = async ({ github, context }, versionPostfix) => {
     packageJSON.name = '@vercel/remix-run-dev'
 
     if (versionPostfix !== "") {
+        if (!/[a-z]+\.\d+/.test(versionPostfix)) {
+            throw new Error(`version-postfix, '${versionPostfix}', is invalid. Must be a word and a number seperated by a '.' character. Example: 'patch.1'`)
+        }
         packageJSON.version = `${packageJSON.version}-${versionPostfix}`;
     }
 
