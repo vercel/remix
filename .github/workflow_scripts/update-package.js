@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = async ({ github, context }, versionPostfix) => {
-    console.log('versionPostfix', versionPostfix);
+    const versionPostfixRegex = /[a-z]+\.\d+/;
+
+    if (!versionPostfixRegex.test(versionPostfix)) {
+        throw new Error(`version-postfix, '${versionPostfix}', is invalid. Must be a word and a number seperated by a '.' character. Example: 'patch.1'`)
+    }
 
     const packageJSONPath = path.join(
         __dirname,
