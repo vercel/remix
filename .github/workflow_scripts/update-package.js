@@ -19,6 +19,8 @@ module.exports = async ({ github, context }, versionPostfix) => {
     packageJSON.name = '@vercel/remix-run-dev'
 
     if (versionPostfix) {
-        packageJSON.version = `${packageJSON.version}-${versionPostfix}`
+        packageJSON.version = `${packageJSON.version}-${versionPostfix}`;
     }
+
+    fs.writeFileSync(packageJSONPath, JSON.stringify(packageJSON, null, 2) + '\n');
 };
