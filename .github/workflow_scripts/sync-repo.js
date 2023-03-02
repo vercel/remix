@@ -49,12 +49,28 @@ module.exports = async ({ github, context }) => {
                 ref: 'main'
             });
             console.log(commit);
-            await github.rest.issues.create({
+            const title = `Merge Conflict ❌`;
+            const issues = github.rest.issues.listForRepo({
                 owner,
                 repo,
-                title: 'Merge Conflict ❌',
-                body: commit.data
             });
+            console.log(issues);
+            const existingIssue = issues.data.find((issue) => issue.title === title);
+            if (existingIssue) {
+                await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: existingIssue.number,
+                    body: `Sha: ${commit.data.sha}\nURL: ${commit.data.html_url}`
+                });
+            } else {
+                await github.rest.issues.create({
+                    owner,
+                    repo,
+                    title,
+                    body: `Latest commit: ${commit.data.html_url}`
+                });
+            }
         }
 
         throw err
