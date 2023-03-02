@@ -42,7 +42,7 @@ module.exports = async ({ github, context }) => {
 
     } catch (err) {
         // Conflict detected
-        if (err.code === 409) {
+        if (err.status === 409) {
             const commit = await github.rest.repos.getCommit({
                 owner: 'remix-run',
                 repo: 'remix',
@@ -56,6 +56,8 @@ module.exports = async ({ github, context }) => {
             });
             const existingIssue = issues.data.find((issue) => issue.title === title);
             if (existingIssue) {
+                console.log(existingIssue);
+                console.log(body);
                 if (existingIssue.body !== body) {
                     await github.rest.issues.update({
                         owner,
