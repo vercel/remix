@@ -48,27 +48,30 @@ module.exports = async ({ github, context }) => {
                 repo: 'remix',
                 ref: 'main'
             });
-            console.log(commit);
             const title = `Merge Conflict ❌`;
+            const body = `Latest commit: ${commit.data.html_url}`;
             const issues = await github.rest.issues.listForRepo({
                 owner,
                 repo,
             });
-            console.log(issues);
             const existingIssue = issues.data.find((issue) => issue.title === title);
             if (existingIssue) {
-                await github.rest.issues.createComment({
-                    owner,
-                    repo,
-                    issue_number: existingIssue.number,
-                    body: `Sha: ${commit.data.sha}\nURL: ${commit.data.html_url}`
-                });
+                if (existingIssue.body !== body) {
+                    await github.rest.issues.update({
+                        owner,
+                        repo,
+                        issue_number: existingIssue.number,
+                        body
+                    });
+                } else {
+                    console.log(`Latest merge conflict commit did not change.`)
+                }
             } else {
                 await github.rest.issues.create({
                     owner,
                     repo,
                     title,
-                    body: `Latest commit: ${commit.data.html_url}`
+                    body
                 });
             }
         }
