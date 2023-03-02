@@ -43,7 +43,18 @@ module.exports = async ({ github, context }) => {
     } catch (err) {
         // Conflict detected
         if (err.code === 409) {
-            // TODO(@Ethan-Arrowood): Send a slack message/generate a github issue
+            const commit = await github.rest.repos.getCommit({
+                owner: 'remix-run',
+                repo: 'remix',
+                ref: 'main'
+            });
+            console.log(commit);
+            await github.rest.issues.create({
+                owner,
+                repo,
+                title: 'Merge Conflict ❌',
+                body: commit.data
+            });
         }
 
         throw err
