@@ -56,8 +56,6 @@ module.exports = async ({ github, context }) => {
             });
             const existingIssue = issues.data.find((issue) => issue.title === title);
             if (existingIssue) {
-                console.log(existingIssue);
-                console.log(body);
                 if (existingIssue.body !== body) {
                     await github.rest.issues.update({
                         owner,
