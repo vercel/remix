@@ -50,7 +50,7 @@ module.exports = async ({ github, context }) => {
             });
             console.log(commit);
             const title = `Merge Conflict ❌`;
-            const issues = github.rest.issues.listForRepo({
+            const issues = await github.rest.issues.listForRepo({
                 owner,
                 repo,
             });
