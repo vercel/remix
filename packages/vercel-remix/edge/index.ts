@@ -1,7 +1,6 @@
 export {
   createCookie,
   createCookieSessionStorage,
-  createMemorySessionStorage,
   createSessionStorage,
 } from './implementations';
 
