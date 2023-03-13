@@ -4,6 +4,8 @@ const { getAdapterConfig } = require("../../rollup.utils");
 module.exports = function rollup() {
   return [
     getAdapterConfig("vercel-remix"),
+    getAdapterConfig("vercel-remix", "server.ts"),
     getAdapterConfig("vercel-remix", "edge/index.ts"),
+    getAdapterConfig("vercel-remix", "edge/server.ts"),
   ];
 };
