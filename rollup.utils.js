@@ -5,6 +5,7 @@ const fs = require("fs");
 const fse = require("fs-extra");
 const nodeResolve = require("@rollup/plugin-node-resolve").default;
 const path = require("path");
+const { dirname } = require("path");
 
 const REPO_ROOT_DIR = __dirname;
 
@@ -135,19 +136,25 @@ function copyToPlaygrounds() {
  * @param {RemixAdapter} adapterName
  * @returns {import("rollup").RollupOptions}
  */
-function getAdapterConfig(adapterName) {
+function getAdapterConfig(adapterName, entrypoint = 'index.ts') {
   /** @type {`@remix-run/${RemixAdapter}`} */
   let packageName = `@remix-run/${adapterName}`;
   let sourceDir = `packages/remix-${adapterName}`;
+
+  if (adapterName === 'vercel-remix') {
+    packageName = `@vercel/remix`;
+    sourceDir = 'packages/vercel-remix';
+  }
+
   let outputDir = getOutputDir(packageName);
-  let outputDist = path.join(outputDir, "dist");
+  let outputDist = path.join(outputDir, "dist", dirname(entrypoint));
   let version = getVersion(sourceDir);
 
   return {
     external(id) {
       return isBareModuleId(id);
     },
-    input: `${sourceDir}/index.ts`,
+    input: `${sourceDir}/${entrypoint}`,
     output: {
       banner: createBanner(packageName, version),
       dir: outputDist,
@@ -416,6 +423,9 @@ function getOutputDir(packageName) {
  * @param {string} packageName
  */
 function getPackageDirname(packageName) {
+  if (packageName === '@vercel/remix') {
+    return 'vercel-remix';
+  }
   let scope = "@remix-run/";
   return packageName.startsWith(scope)
     ? `remix-${packageName.slice(scope.length)}`
