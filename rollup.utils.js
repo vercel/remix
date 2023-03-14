@@ -35,10 +35,11 @@ if (process.env.REMIX_LOCAL_BUILD_DIRECTORY) {
  * @param {boolean} [executable]
  */
 function createBanner(packageName, version, executable = false) {
+  let owner = packageName.startsWith('@vercel/') ? 'Vercel, Inc.' : 'Remix Software Inc.';
   let banner = `/**
  * ${packageName} v${version}
  *
- * Copyright (c) Remix Software Inc.
+ * Copyright (c) ${owner}
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE.md file in the root directory of this source tree.
