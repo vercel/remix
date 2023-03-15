@@ -43,7 +43,12 @@ export const compile = async (
     let assetsManifestChannel = createChannel<AssetsManifest>();
     let browserPromise = compiler.browser.compile(assetsManifestChannel);
     let serverBundlesPromises = compiler.server.compileBundles(assetsManifestChannel);
-    let [browser, ...servers] = await Promise.all([browserPromise, ...serverBundlesPromises]);
+
+    // await browser/server _before_ assets manifest channel
+    // to fix https://github.com/remix-run/remix/issues/5631
+    // this is temporary and is actively being refactored
+    let browser = await browserPromise;
+    let servers = await Promise.all(serverBundlesPromises);
     return {
       assetsManifest: await assetsManifestChannel.read(),
       metafile: {
