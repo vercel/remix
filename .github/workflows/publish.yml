@@ -21,6 +21,8 @@ jobs:
           cache: "yarn"
       - name: Install
         run: yarn --frozen-lockfile
+      - name: Build
+        run : yarn build:vercel
       - name: Update package
         id: update-package
         uses: actions/github-script@v6
@@ -29,8 +31,6 @@ jobs:
           script: |
             const script = require('./.github/workflow_scripts/update-package.js');
             return await script({ github, context }, "${{ inputs.version-postfix }}");
-      - name: Build
-        run : yarn build:vercel
       - name: Publish @vercel/remix
         run: cd packages/vercel-remix && npm publish
         env:
