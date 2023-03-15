@@ -31,12 +31,12 @@ jobs:
             return await script({ github, context }, "${{ inputs.version-postfix }}");
       - name: Build
         run : yarn build:vercel
-      - name: Publish @vercel/remix-run-dev
-        run: cd packages/remix-dev && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
       - name: Publish @vercel/remix
         run: cd packages/vercel-remix && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+      - name: Publish @vercel/remix-run-dev
+        run: cd packages/remix-dev && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
       - name: Update package
