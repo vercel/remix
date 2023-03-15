@@ -1,0 +1,47 @@
+{
+  "name": "@vercel/remix",
+  "version": "1.14.1",
+  "description": "Isomorphic runtime + adapter for Remix on Vercel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vercel/remix",
+    "directory": "packages/vercel-remix"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "browser": "dist/edge/index.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/edge/index.js",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "browser": "./dist/edge/server.js",
+      "default": "./dist/server.js"
+    },
+    "./entry.server": {
+      "browser": "./dist/edge/entry.server.js",
+      "default": "./dist/entry.server.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@remix-run/node": "1.14.1",
+    "@remix-run/server-runtime": "1.14.1",
+    "isbot": "3.6.6"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-dom": "*"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "README.md"
+  ]
+}

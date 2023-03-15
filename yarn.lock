@@ -7780,6 +7780,11 @@ isarray@^1.0.0, isarray@~1.0.0:
   resolved "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
 
+isbot@3.6.6:
+  version "3.6.6"
+  resolved "https://registry.npmjs.org/isbot/-/isbot-3.6.6.tgz#3ae163dee8dc158322c025f9105d16b050e97192"
+  integrity sha512-98aGl1Spbx1led422YFrusDJ4ZutSNOymb2avZ2V4BCCjF3MqAF2k+J2zoaLYahubaFkb+3UyvbVDVlk/Ngrew==
+
 isbot@^3.5.1:
   version "3.5.1"
   resolved "https://registry.npmjs.org/isbot/-/isbot-3.5.1.tgz"

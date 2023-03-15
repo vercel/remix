@@ -33,7 +33,11 @@ async function copyBuildToDist() {
       build: buildDir,
       src: path.join(
         PACKAGES_PATH,
-        parentDir === "@remix-run" ? `remix-${dirName}` : dirName
+        parentDir === "@remix-run"
+          ? `remix-${dirName}`
+          : parentDir === "@vercel"
+          ? `vercel-${dirName}`
+          : dirName
       ),
     };
   });
@@ -138,10 +142,11 @@ async function getPackageBuildPaths(moduleRootDir) {
       if (!(await fse.stat(moduleDir)).isDirectory()) {
         continue;
       }
-      if (path.basename(moduleDir) === "@remix-run") {
+      if (path.basename(moduleDir) === "@remix-run" || path.basename(moduleDir) === '@vercel') {
         packageBuilds.push(...(await getPackageBuildPaths(moduleDir)));
       } else if (
         /node_modules\/@remix-run\//.test(moduleDir) ||
+        /node_modules\/@vercel\//.test(moduleDir) ||
         /node_modules\/create-remix/.test(moduleDir) ||
         /node_modules\/remix/.test(moduleDir)
       ) {
