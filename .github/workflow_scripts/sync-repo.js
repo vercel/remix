@@ -45,6 +45,8 @@ module.exports = async ({ github, context }) => {
         fs.readFileSync(vercelRemixPackageJSONPath, 'utf-8')
       );
       vercelRemixPackageJSON.version = newVersion;
+      vercelRemixPackageJSON.dependencies['@remix-run/node'] = newVersion;
+      vercelRemixPackageJSON.dependencies['@remix-run/server-runtime'] = newVersion;
       fs.writeFileSync(
         vercelRemixPackageJSONPath,
         `${JSON.stringify(vercelRemixPackageJSON, null, 2)}\n`
