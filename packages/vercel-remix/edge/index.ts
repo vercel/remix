@@ -2,10 +2,9 @@ export {
   createCookie,
   createCookieSessionStorage,
   createSessionStorage,
-} from './implementations';
+} from "./implementations";
 
 export {
-  createRequestHandler,
   createSession,
   defer,
   isCookie,
@@ -16,7 +15,9 @@ export {
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-} from '@remix-run/server-runtime';
+} from "@remix-run/server-runtime";
+
+export { handleRequest } from "./entry.server";
 
 export type {
   ActionArgs,
@@ -64,4 +65,4 @@ export type {
   UnsignFunction,
   UploadHandler,
   UploadHandlerPart,
-} from '@remix-run/server-runtime';
+} from "@remix-run/server-runtime";

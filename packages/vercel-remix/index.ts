@@ -5,7 +5,6 @@ export {
 } from "@remix-run/node";
 
 export {
-  createRequestHandler,
   createSession,
   defer,
   isCookie,
@@ -17,6 +16,8 @@ export {
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from "@remix-run/server-runtime";
+
+export { handleRequest } from "./entry.server";
 
 export type {
   ActionArgs,
