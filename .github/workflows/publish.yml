@@ -39,7 +39,7 @@ jobs:
         run: cd packages/remix-dev && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
-      - name: Update package
+      - name: Trigger update workflow on "vercel/vercel"
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GH_TOKEN_PULL_REQUESTS }}
