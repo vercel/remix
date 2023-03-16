@@ -27,8 +27,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@remix-run/node": "1.14.1",
-    "@remix-run/server-runtime": "1.14.1",
+    "@remix-run/node": "1.14.3",
+    "@remix-run/server-runtime": "1.14.3",
     "isbot": "3.6.6"
   },
   "peerDependencies": {
