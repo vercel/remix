@@ -1,6 +1,6 @@
 {
   "name": "@vercel/remix",
-  "version": "1.14.3",
+  "version": "1.15.0",
   "description": "Isomorphic runtime + adapter for Remix on Vercel",
   "repository": {
     "type": "git",
@@ -25,9 +25,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@remix-run/node": "1.14.3",
-    "@remix-run/server-runtime": "1.14.3",
-    "isbot": "3.6.6"
+    "@remix-run/node": "1.15.0",
+    "@remix-run/server-runtime": "1.15.0",
+    "isbot": "3.6.7"
   },
   "peerDependencies": {
     "react": "*",
