@@ -2560,7 +2560,7 @@ function validatePassword(password: string) {
 }
 
 function validateUrl(url: string) {
-  let urls = ["/jokes", "/", "https://remix.run"];
+  const urls = ["/jokes", "/", "https://remix.run"];
   if (urls.includes(url)) {
     return url;
   }
@@ -3044,11 +3044,11 @@ So we can now check whether the user is authenticated on the server by reading t
 <summary>app/utils/session.server.ts</summary>
 
 ```ts filename=app/utils/session.server.ts lines=[55-57,59-66,68-81]
-import bcrypt from "bcryptjs";
 import {
   createCookieSessionStorage,
   redirect,
 } from "@remix-run/node";
+import bcrypt from "bcryptjs";
 
 import { db } from "./db.server";
 
@@ -3753,7 +3753,7 @@ function validatePassword(password: string) {
 }
 
 function validateUrl(url: string) {
-  let urls = ["/jokes", "/", "https://remix.run"];
+  const urls = ["/jokes", "/", "https://remix.run"];
   if (urls.includes(url)) {
     return url;
   }
@@ -5062,7 +5062,7 @@ function validatePassword(password: string) {
 }
 
 function validateUrl(url: string) {
-  let urls = ["/jokes", "/", "https://remix.run"];
+  const urls = ["/jokes", "/", "https://remix.run"];
   if (urls.includes(url)) {
     return url;
   }
@@ -6427,7 +6427,7 @@ function validatePassword(password: string) {
 }
 
 function validateUrl(url: string) {
-  let urls = ["/jokes", "/", "https://remix.run"];
+  const urls = ["/jokes", "/", "https://remix.run"];
   if (urls.includes(url)) {
     return url;
   }
