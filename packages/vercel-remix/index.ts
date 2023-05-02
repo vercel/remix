@@ -4,6 +4,8 @@ export {
   createSessionStorage,
 } from "@remix-run/node";
 
+export { createKvSessionStorage } from "./implementations";
+
 export {
   createSession,
   defer,
