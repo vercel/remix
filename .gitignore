@@ -32,3 +32,6 @@ tsconfig.tsbuildinfo
 
 /NOTES.md
 /RELEASENOTES.md
+
+# Vercel
+/public
