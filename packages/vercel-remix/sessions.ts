@@ -11,8 +11,8 @@ interface KvClient {
   set: (
     key: string,
     value: string,
-    opts?: { pxat?: number }
-  ) => Promise<number>;
+    opts?: { pxat?: any, nx?: any }
+  ) => Promise<string | null>;
 }
 
 export interface KvSessionStorageOptions {
