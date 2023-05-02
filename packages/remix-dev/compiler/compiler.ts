@@ -80,7 +80,7 @@ export let create = async (ctx: Context): Promise<Compiler> => {
     };
 
     // keep track of manually written artifacts
-    let writes: Promise<void>[] = []
+    let writes: Promise<void>[] = [];
 
     // css compilation
     let css = await tasks.css;

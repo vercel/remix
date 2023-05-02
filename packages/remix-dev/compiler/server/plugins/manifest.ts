@@ -11,9 +11,12 @@ import { assetsManifestVirtualModule } from "../virtualModules";
  * the assets manifest. This is used in the server entry module to access the
  * assets manifest in the server build.
  */
-export function serverAssetsManifestPlugin(channels: {
-  manifest: Channel.Type<Manifest>;
-}, routes: RouteManifest): Plugin {
+export function serverAssetsManifestPlugin(
+  channels: {
+    manifest: Channel.Type<Manifest>;
+  },
+  routes: RouteManifest
+): Plugin {
   let filter = assetsManifestVirtualModule.filter;
 
   return {

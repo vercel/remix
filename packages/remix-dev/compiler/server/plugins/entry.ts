@@ -13,7 +13,10 @@ import {
  * for you to consume the build in a custom server entry that is also fed through
  * the compiler.
  */
-export function serverEntryModulePlugin({ config, options }: Context, routes: RouteManifest): Plugin {
+export function serverEntryModulePlugin(
+  { config, options }: Context,
+  routes: RouteManifest
+): Plugin {
   let filter = serverBuildVirtualModule.filter;
 
   return {

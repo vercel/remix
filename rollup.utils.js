@@ -35,7 +35,9 @@ if (process.env.REMIX_LOCAL_BUILD_DIRECTORY) {
  * @param {boolean} [executable]
  */
 function createBanner(packageName, version, executable = false) {
-  let owner = packageName.startsWith('@vercel/') ? 'Vercel, Inc.' : 'Remix Software Inc.';
+  let owner = packageName.startsWith("@vercel/")
+    ? "Vercel, Inc."
+    : "Remix Software Inc.";
   let banner = `/**
  * ${packageName} v${version}
  *
@@ -137,14 +139,14 @@ function copyToPlaygrounds() {
  * @param {RemixAdapter} adapterName
  * @returns {import("rollup").RollupOptions}
  */
-function getAdapterConfig(adapterName, entrypoint = 'index.ts') {
+function getAdapterConfig(adapterName, entrypoint = "index.ts") {
   /** @type {`@remix-run/${RemixAdapter}`} */
   let packageName = `@remix-run/${adapterName}`;
   let sourceDir = `packages/remix-${adapterName}`;
 
-  if (adapterName === 'vercel-remix') {
+  if (adapterName === "vercel-remix") {
     packageName = `@vercel/remix`;
-    sourceDir = 'packages/vercel-remix';
+    sourceDir = "packages/vercel-remix";
   }
 
   let outputDir = getOutputDir(packageName);
@@ -424,8 +426,8 @@ function getOutputDir(packageName) {
  * @param {string} packageName
  */
 function getPackageDirname(packageName) {
-  if (packageName === '@vercel/remix') {
-    return 'vercel-remix';
+  if (packageName === "@vercel/remix") {
+    return "vercel-remix";
   }
   let scope = "@remix-run/";
   return packageName.startsWith(scope)

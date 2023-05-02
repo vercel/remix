@@ -152,7 +152,10 @@ async function getPackageBuildPaths(moduleRootDir) {
       if (!(await fse.stat(moduleDir)).isDirectory()) {
         continue;
       }
-      if (path.basename(moduleDir) === "@remix-run" || path.basename(moduleDir) === '@vercel') {
+      if (
+        path.basename(moduleDir) === "@remix-run" ||
+        path.basename(moduleDir) === "@vercel"
+      ) {
         packageBuilds.push(...(await getPackageBuildPaths(moduleDir)));
       } else if (
         /node_modules\/@remix-run\//.test(moduleDir) ||
