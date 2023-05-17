@@ -55,9 +55,9 @@ ${Object.keys(routes)
   export const publicPath = ${JSON.stringify(config.publicPath)};
   export const entry = { module: entryServer };
   ${
-    options.devWebsocketPort
+    options.devWebSocketPort
       ? `export const dev = ${JSON.stringify({
-          websocketPort: options.devWebsocketPort,
+          websocketPort: options.devWebSocketPort,
         })}`
       : ""
   }
