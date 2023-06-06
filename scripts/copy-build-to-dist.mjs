@@ -158,10 +158,10 @@ async function getPackageBuildPaths(moduleRootDir) {
       ) {
         packageBuilds.push(...(await getPackageBuildPaths(moduleDir)));
       } else if (
-        /node_modules\/@remix-run\//.test(moduleDir) ||
-        /node_modules\/@vercel\//.test(moduleDir) ||
-        /node_modules\/create-remix/.test(moduleDir) ||
-        /node_modules\/remix/.test(moduleDir)
+        /node_modules[/\\]@remix-run[/\\]/.test(moduleDir) ||
+        /node_modules[/\\]@vercel[/\\]/.test(moduleDir) ||
+        /node_modules[/\\]create-remix/.test(moduleDir) ||
+        /node_modules[/\\]remix/.test(moduleDir)
       ) {
         packageBuilds.push(moduleDir);
       }
