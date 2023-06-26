@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild";
-import { polyfillNode as NodeModulesPolyfillPlugin } from "esbuild-plugin-polyfill-node";
+import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
 
 import { type Manifest } from "../../manifest";
 import { loaders } from "../utils/loaders";
@@ -16,9 +16,11 @@ import { serverBareModulesPlugin } from "./plugins/bareImports";
 import { serverEntryModulePlugin } from "./plugins/entry";
 import { serverRouteModulesPlugin } from "./plugins/routes";
 import { externalPlugin } from "../plugins/external";
+import { cssBundlePlugin } from "../plugins/cssBundlePlugin";
 import type * as Channel from "../../channel";
 import type { Context } from "../context";
 import type { RouteManifest } from "../../config/routes";
+import type { LazyValue } from "../lazyValue";
 
 type Compiler = {
   // produce ./build/index.js
@@ -31,7 +33,10 @@ const createEsbuildConfig = (
   ctx: Context,
   routes: RouteManifest,
   outfile: string,
-  channels: { manifest: Channel.Type<Manifest> }
+  refs: {
+    manifestChannel: Channel.Type<Manifest>;
+    lazyCssBundleHref: LazyValue<string | undefined>;
+  }
 ): esbuild.BuildOptions => {
   let stdin: esbuild.StdinOptions | undefined;
   let entryPoints: string[] | undefined;
@@ -48,6 +53,7 @@ const createEsbuildConfig = (
 
   let plugins: esbuild.Plugin[] = [
     deprecatedRemixPackagePlugin(ctx),
+    cssBundlePlugin(refs),
     cssModulesPlugin(ctx, { outputCss: false }),
     vanillaExtractPlugin(ctx, { outputCss: false }),
     cssSideEffectImportsPlugin(ctx),
@@ -58,13 +64,13 @@ const createEsbuildConfig = (
     emptyModulesPlugin(ctx, /\.client(\.[jt]sx?)?$/),
     serverRouteModulesPlugin(ctx, routes),
     serverEntryModulePlugin(ctx, routes),
-    serverAssetsManifestPlugin(channels, routes),
+    serverAssetsManifestPlugin(refs, routes),
     serverBareModulesPlugin(ctx),
     externalPlugin(/^node:.*/, { sideEffects: false }),
   ];
 
   if (ctx.config.serverPlatform !== "node") {
-    plugins.unshift(NodeModulesPolyfillPlugin());
+    plugins.unshift(nodeModulesPolyfillPlugin());
   }
 
   return {
@@ -119,10 +125,13 @@ export const create = async (
   ctx: Context,
   routes: RouteManifest,
   outfile: string,
-  channels: { manifest: Channel.Type<Manifest> }
+  refs: {
+    manifestChannel: Channel.Type<Manifest>;
+    lazyCssBundleHref: LazyValue<string | undefined>;
+  }
 ): Promise<Compiler> => {
   let compiler = await esbuild.context({
-    ...createEsbuildConfig(ctx, routes, outfile, channels),
+    ...createEsbuildConfig(ctx, routes, outfile, refs),
     write: false,
   });
   let compile = async () => {

@@ -7,8 +7,11 @@ export {
 export { createKvSessionStorage } from "./implementations";
 
 export {
+  createRequestHandler,
   createSession,
   defer,
+  broadcastDevReady,
+  logDevReady,
   isCookie,
   isSession,
   json,
@@ -36,6 +39,7 @@ export type {
   ErrorBoundaryComponent,
   HandleDataRequestFunction,
   HandleDocumentRequestFunction,
+  HeadersArgs,
   HeadersFunction,
   HtmlLinkDescriptor,
   HtmlMetaDescriptor,
@@ -48,6 +52,7 @@ export type {
   MemoryUploadHandlerOptions,
   MetaDescriptor,
   MetaFunction,
+  HandleErrorFunction,
   PageLinkDescriptor,
   RequestHandler,
   RouteComponent,
