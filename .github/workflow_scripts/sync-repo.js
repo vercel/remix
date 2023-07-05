@@ -52,6 +52,8 @@ module.exports = async ({ github, context }) => {
         `${JSON.stringify(vercelRemixPackageJSON, null, 2)}\n`
       );
 
+      execSync('git config --global user.email infra+release@vercel.com');
+      execSync('git config --global user.name vercel-release-bot');
       execSync('git add packages/vercel-remix/package.json');
       execSync(`git commit -m "Set version in @vercel/remix to ${newVersion}"`);
       execSync('git push origin main');
