@@ -117,12 +117,17 @@ export interface AppConfig {
 
   /**
    * The port number to use for the dev server. Defaults to 8002.
+   *
+   * @deprecated Use {@link AppConfig.future.v2_dev.port} instead.
    */
   devServerPort?: number;
 
   /**
    * The delay, in milliseconds, before the dev server broadcasts a reload
    * event. There is no delay by default.
+   *
+   * @deprecated Enable {@link AppConfig.future.v2_dev} to eliminate the race
+   * conditions that necessitated this option.
    */
   devServerBroadcastDelay?: number;
 
@@ -305,11 +310,16 @@ export interface RemixConfig {
 
   /**
    * The port number to use for the dev (asset) server.
+   *
+   * @deprecated Use {@link RemixConfig.future.v2_dev.port} instead.
    */
   devServerPort: number;
 
   /**
    * The delay before the dev (asset) server broadcasts a reload event.
+   *
+   * @deprecated Enable {@link RemixConfig.future.v2_dev} to eliminate the race
+   * conditions that necessitated this option.
    */
   devServerBroadcastDelay: number;
 
@@ -822,6 +832,13 @@ export async function readConfig(
     assetsBuildDirectory
   );
 
+  if (appConfig.devServerPort) {
+    devServerPortWarning();
+  }
+  if (appConfig.devServerBroadcastDelay) {
+    devServerBroadcastDelayWarning();
+  }
+
   let devServerPort =
     Number(process.env.REMIX_DEV_SERVER_WS_PORT) ||
     (await getPort({ port: Number(appConfig.devServerPort) || 8002 }));
@@ -1072,6 +1089,27 @@ let browserBuildDirectoryWarning = () =>
       key: "browserBuildDirectoryWarning",
     }
   );
+
+let devServerBroadcastDelayWarning = () =>
+  logger.warn(
+    "The `devServerBroadcastDelay` config option will be removed in v2",
+    {
+      details: [
+        "Enable `v2_dev` to eliminate the race conditions that necessitated this option.",
+        "-> https://remix.run/docs/en/v1.19.3/pages/v2#devserverbroadcastdelay",
+      ],
+      key: "devServerBroadcastDelayWarning",
+    }
+  );
+
+let devServerPortWarning = () =>
+  logger.warn("The `devServerPort` config option will be removed in v2", {
+    details: [
+      "Enable `v2_dev` and use `--port` / `v2_dev.port` option instead.",
+      "-> https://remix.run/docs/en/v1.19.3/pages/v2#devserverport",
+    ],
+    key: "devServerPortWarning",
+  });
 
 let serverBuildDirectoryWarning = () =>
   logger.warn(
