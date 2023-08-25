@@ -75,7 +75,31 @@ module.exports = async ({ github, context }) => {
         ref: 'main',
       });
       const title = `Merge Conflict ❌`;
-      const body = `Latest commit: ${commit.data.html_url}`;
+      const body = `Latest commit: ${commit.data.html_url}
+
+## How to resolve
+
+Pull from the upstream repo:
+
+\`\`\`
+git pull https://github.com/remix-run/remix.git main
+\`\`\`
+
+There will be a merge conflict, which needs to be resolved manually.
+
+Frequently, these conflicts are regarding GitHub workflow files,
+which were deleted in the \`vercel/remix\` repo. In this case,
+those workflow files can be \`git rm\`'d again to resolve.
+
+If there is a conflict within the source code (i.e. in the Remix
+compiler) then the conflicts will need to be manually resolved.
+
+Finally, before committing the resolved merge, ensure that the \`version\`
+field in the "vercel-remix" package's \`package.json\` file matches that
+of the "remix-dev" package. If the version needs to be updated, update
+the Remix-related dependencies in the \`package.json\` file as well,
+since Remix keeps them in sync.
+`;
       const issues = await github.rest.issues.listForRepo({
         owner,
         repo,
