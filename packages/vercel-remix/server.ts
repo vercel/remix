@@ -5,17 +5,9 @@ import type {
   IncomingHttpHeaders,
   ServerResponse,
 } from "http";
-import type {
-  AppLoadContext,
-  ServerBuild,
-  RequestInit as NodeRequestInit,
-  Response as NodeResponse,
-} from "@remix-run/node";
+import type { AppLoadContext, ServerBuild } from "@remix-run/node";
 import {
-  AbortController as NodeAbortController,
   createRequestHandler as createRemixRequestHandler,
-  Headers as NodeHeaders,
-  Request as NodeRequest,
   writeReadableStreamToWritable,
 } from "@remix-run/node";
 
@@ -26,7 +18,7 @@ import {
  * You can think of this as an escape hatch that allows you to pass
  * environment/platform-specific values through to your loader/action.
  */
-export type GetLoadContextFunction = (req: NodeRequest) => AppLoadContext;
+export type GetLoadContextFunction = (req: Request) => AppLoadContext;
 
 export type RequestHandler = (
   req: IncomingMessage,
@@ -52,14 +44,14 @@ export function createRequestHandler({
     let request = createRemixRequest(req, res);
     let loadContext = getLoadContext?.(request);
 
-    let response = (await handleRequest(request, loadContext)) as NodeResponse;
+    let response = await handleRequest(request, loadContext);
 
     await sendRemixResponse(res, response);
   };
 }
 
-function createRemixHeaders(requestHeaders: IncomingHttpHeaders): NodeHeaders {
-  let headers = new NodeHeaders();
+function createRemixHeaders(requestHeaders: IncomingHttpHeaders): Headers {
+  let headers = new Headers();
 
   for (let key in requestHeaders) {
     let header = requestHeaders[key]!;
@@ -79,35 +71,37 @@ function createRemixHeaders(requestHeaders: IncomingHttpHeaders): NodeHeaders {
 function createRemixRequest(
   req: IncomingMessage,
   res: ServerResponse
-): NodeRequest {
+): Request {
   let host = req.headers["x-forwarded-host"] || req.headers["host"];
   let protocol = req.headers["x-forwarded-proto"] || "https";
   let url = new URL(`${protocol}://${host}${req.url}`);
 
   // Abort action/loaders once we can no longer write a response
-  let controller = new NodeAbortController();
+  let controller = new AbortController();
   res.on("close", () => controller.abort());
 
-  let init: NodeRequestInit = {
+  let init: RequestInit = {
     method: req.method,
     headers: createRemixHeaders(req.headers),
     // Cast until reason/throwIfAborted added
     // https://github.com/mysticatea/abort-controller/issues/36
-    signal: controller.signal as NodeRequestInit["signal"],
+    signal: controller.signal as RequestInit["signal"],
   };
 
   if (req.method !== "GET" && req.method !== "HEAD") {
+    // @ts-expect-error
     init.body = req;
   }
 
-  return new NodeRequest(url.href, init);
+  return new Request(url.href, init);
 }
 
 async function sendRemixResponse(
   res: ServerResponse,
-  nodeResponse: NodeResponse
+  nodeResponse: Response
 ): Promise<void> {
   res.statusMessage = nodeResponse.statusText;
+  // @ts-expect-error
   let multiValueHeaders = nodeResponse.headers.raw();
   res.writeHead(
     nodeResponse.status,

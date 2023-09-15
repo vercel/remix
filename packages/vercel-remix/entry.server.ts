@@ -1,6 +1,5 @@
 import { PassThrough } from "stream";
 import { renderToPipeableStream } from "react-dom/server";
-import { Response } from "@remix-run/node";
 import isbot from "isbot";
 
 const ABORT_DELAY = 5000;
@@ -34,6 +33,7 @@ function serveTheBots(
         let body = new PassThrough();
         pipe(body);
         resolve(
+          // @ts-expect-error
           new Response(body, {
             status: responseStatusCode,
             headers: responseHeaders,
@@ -62,6 +62,7 @@ function serveBrowsers(
         let body = new PassThrough();
         pipe(body);
         resolve(
+          // @ts-expect-error
           new Response(body, {
             status: didError ? 500 : responseStatusCode,
             headers: responseHeaders,

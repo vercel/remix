@@ -5,6 +5,8 @@ export {
   createSessionStorage,
 } from "./implementations";
 
+export { handleRequest } from "./entry.server";
+
 export {
   createRequestHandler,
   createSession,
@@ -16,17 +18,15 @@ export {
   json,
   MaxPartSizeExceededError,
   redirect,
+  redirectDocument,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
 } from "@remix-run/server-runtime";
 
-export { handleRequest } from "./entry.server";
-
 export type {
-  ActionArgs,
   ActionFunction,
-  AppData,
+  ActionFunctionArgs,
   AppLoadContext,
   Cookie,
   CookieOptions,
@@ -35,35 +35,28 @@ export type {
   CookieSignatureOptions,
   DataFunctionArgs,
   EntryContext,
-  ErrorBoundaryComponent,
+  ErrorResponse,
   HandleDataRequestFunction,
   HandleDocumentRequestFunction,
   HeadersArgs,
   HeadersFunction,
   HtmlLinkDescriptor,
-  HtmlMetaDescriptor,
   JsonFunction,
   LinkDescriptor,
   LinksFunction,
-  LoaderArgs,
   LoaderFunction,
+  LoaderFunctionArgs,
   MemoryUploadHandlerFilterArgs,
   MemoryUploadHandlerOptions,
-  MetaDescriptor,
-  MetaFunction,
   HandleErrorFunction,
   PageLinkDescriptor,
   RequestHandler,
-  RouteComponent,
-  RouteHandle,
   SerializeFrom,
   ServerBuild,
   ServerEntryModule,
-  V2_ServerRuntimeMetaArgs as V2_MetaArgs,
-  V2_ServerRuntimeMetaDescriptor as V2_MetaDescriptor,
-  // TODO: Remove in v2
-  V2_ServerRuntimeMetaDescriptor as V2_HtmlMetaDescriptor,
-  V2_ServerRuntimeMetaFunction as V2_MetaFunction,
+  ServerRuntimeMetaArgs as MetaArgs,
+  ServerRuntimeMetaDescriptor as MetaDescriptor,
+  ServerRuntimeMetaFunction as MetaFunction,
   Session,
   SessionData,
   SessionIdStorageStrategy,
