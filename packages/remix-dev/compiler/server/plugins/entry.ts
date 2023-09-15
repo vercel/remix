@@ -45,6 +45,7 @@ ${Object.keys(routes)
     )};`;
   })
   .join("\n")}
+  export const mode = ${JSON.stringify(options.mode)};
   export { default as assets } from ${JSON.stringify(
     assetsManifestVirtualModule.id
   )};
