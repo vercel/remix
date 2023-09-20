@@ -1,6 +1,7 @@
 import { PassThrough } from "stream";
 import { renderToPipeableStream } from "react-dom/server";
 import isbot from "isbot";
+import { createReadableStreamFromReadable } from "@remix-run/node";
 
 const ABORT_DELAY = 5000;
 
@@ -31,14 +32,16 @@ function serveTheBots(
       onAllReady() {
         responseHeaders.set("Content-Type", "text/html");
         let body = new PassThrough();
-        pipe(body);
+        let stream = createReadableStreamFromReadable(body);
+
         resolve(
-          // @ts-expect-error
-          new Response(body, {
+          new Response(stream, {
             status: responseStatusCode,
             headers: responseHeaders,
           })
         );
+
+        pipe(body);
       },
       onShellError(err) {
         reject(err);
@@ -60,14 +63,16 @@ function serveBrowsers(
       onShellReady() {
         responseHeaders.set("Content-Type", "text/html");
         let body = new PassThrough();
-        pipe(body);
+        let stream = createReadableStreamFromReadable(body);
+
         resolve(
-          // @ts-expect-error
-          new Response(body, {
+          new Response(stream, {
             status: didError ? 500 : responseStatusCode,
             headers: responseHeaders,
           })
         );
+
+        pipe(body);
       },
       onShellError(err) {
         reject(err);

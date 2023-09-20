@@ -11,7 +11,7 @@ interface KvClient {
   set: (
     key: string,
     value: string,
-    opts?: { pxat?: any, nx?: any }
+    opts?: { pxat?: any; nx?: any }
   ) => Promise<string | null>;
 }
 
@@ -35,9 +35,9 @@ export interface KvSessionStorageOptions {
 }
 
 const genRanHex = (size: number) =>
-  [...Array(size)]
-    .map(() => Math.floor(Math.random() * 16).toString(16))
-    .join("");
+  Array.from({ length: size }, () =>
+    Math.floor(Math.random() * 16).toString(16)
+  ).join("");
 
 export const createKvSessionStorageFactory = (
   createSessionStorage: CreateSessionStorageFunction
@@ -65,7 +65,7 @@ export const createKvSessionStorageFactory = (
         }
       },
       async readData(id) {
-        return (await kv.get(id)) || null;
+        return (await kv.get(id)) ?? null;
       },
       async updateData(id, data, expires) {
         let str = JSON.stringify(data);
