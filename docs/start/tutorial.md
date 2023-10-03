@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-You should be able to open up \[http\://localhost:3000]\[http-localhost-3000] and see an unstyled screen that looks like this:
+You should be able to open up [http://localhost:3000][http-localhost-3000] and see an unstyled screen that looks like this:
 
 <img class="tutorial" src="/docs-images/contacts/03.webp" />
 
@@ -602,7 +602,7 @@ Just like creating data, you update data with [`<Form>`][form-component]. Let's 
 touch app/routes/contacts.\$contactId_.edit.tsx
 ```
 
-Note the weird `_` in `$contactId_`. By default, routes will automatically nest inside routes with the same prefixed name. Adding a trialing `_` tells the route to **not** nest inside `app/routes/contacts.$contactId.tsx`. Read more in the [Route File Naming][routes-file-conventions] guide.
+Note the weird `_` in `$contactId_`. By default, routes will automatically nest inside routes with the same prefixed name. Adding a trailing `_` tells the route to **not** nest inside `app/routes/contacts.$contactId.tsx`. Read more in the [Route File Naming][routes-file-conventions] guide.
 
 👉 **Add the edit page UI**
 
