@@ -26,15 +26,7 @@ These templates include a `vite.config.ts` file which is where the Remix Vite pl
 
 ## Configuration
 
-The Vite plugin does not use [`remix.config.js`][remix-config]. Instead, the plugin directly accepts the following subset of Remix config options:
-
-- [appDirectory][app-directory]
-- [assetsBuildDirectory][assets-build-directory]
-- [ignoredRouteFiles][ignored-route-files]
-- [publicPath][public-path]
-- [routes][routes]
-- [serverBuildPath][server-build-path]
-- [serverModuleFormat][server-module-format]
+The Vite plugin does not use [`remix.config.js`][remix-config]. Instead, the plugin accepts options directly.
 
 For example, to configure `ignoredRouteFiles`:
 
@@ -53,6 +45,85 @@ export default defineConfig({
 
 All other bundling-related options are now [configured with Vite][vite-config]. This means you have much greater control over the bundling process.
 
+#### Supported Remix config options
+
+The following subset of Remix config options are supported:
+
+- [appDirectory][app-directory]
+- [assetsBuildDirectory][assets-build-directory]
+- [ignoredRouteFiles][ignored-route-files]
+- [publicPath][public-path]
+- [routes][routes]
+- [serverBuildPath][server-build-path]
+- [serverModuleFormat][server-module-format]
+
+The Vite plugin also accepts the following additional options:
+
+#### serverBuildDirectory
+
+The path to the server build directory, relative to the project root. Defaults to `"build/server"`.
+
+#### serverBuildFile
+
+The name of the server file generated in the server build directory. Defaults to `"index.js"`.
+
+#### unstable_serverBundles
+
+A function for assigning addressable routes to [server bundles][server-bundles].
+
+## Splitting up client and server code
+
+Remix lets you write code that [runs on both the client and the server][server-vs-client].
+Out-of-the-box, Vite doesn't support mixing server-only code with client-safe code in the same module.
+Remix is able to make an exception for routes because we know which exports are server-only and can remove them from the client.
+
+There are a few ways to isolate server-only code in Remix.
+The simplest approach is to use `.server` modules.
+
+#### `.server` modules
+
+While not strictly necessary, `.server` modules are a good way to explicitly mark entire modules as server-only.
+The build will fail if any code in a `.server` file or `.server` directory accidentally ends up in the client module graph.
+
+```txt
+app
+├── .server 👈 marks all files in this directory as server-only
+│   ├── auth.ts
+│   └── db.ts
+├── cms.server.ts 👈 marks this file as server-only
+├── root.tsx
+└── routes
+    └── _index.tsx
+```
+
+`.server` modules must be within your Remix app directory.
+
+#### `vite-env-only`
+
+If you want to mix server-only code and client-safe code in the same module, you can use [`vite-env-only`][vite-env-only].
+That way you can explicitly mark any expression as server-only so that it gets replaced with `undefined` in the client.
+
+For example, you can wrap exports with `serverOnly$`:
+
+```tsx
+import { serverOnly$ } from "vite-env-only";
+
+import { db } from "~/.server/db";
+
+export const getPosts = serverOnly$(async () => {
+  return db.posts.findMany();
+});
+
+export const PostPreview = ({ title, description }) => {
+  return (
+    <article>
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </article>
+  );
+};
+```
+
 ## New build output paths
 
 There is a notable difference with the way Vite manages the `public` directory compared to the existing Remix compiler. During the build, Vite copies files from the `public` directory into `build/client`, whereas the Remix compiler left the `public` directory untouched and used a subdirectory (`public/build`) as the client build directory.
@@ -66,7 +137,7 @@ This means that the following configuration defaults have been changed:
 
 - [assetsBuildDirectory][assets-build-directory] defaults to `"build/client"` rather than `"public/build"`
 - [publicPath][public-path] defaults to `"/"` rather than `"/build/"`
-- [serverBuildPath][server-build-path] defaults to `"build/server/index.js"` rather than `"build/index.js"`
+- [serverBuildPath][server-build-path] has been split into `serverBuildDirectory` and `serverBuildFile`, with the equivalent default for `serverBuildDirectory` being `"build/server"` rather than `"build"`
 
 ## Additional features & plugins
 
@@ -75,25 +146,6 @@ This means that, for any additional bundling features you'd like to use, you sho
 
 Vite has many [features][vite-features] and [plugins][vite-plugins] that are not built into the existing Remix compiler.
 The use of any such features will render the existing Remix compiler unable to compile your app, so only use them if you intend to use Vite exclusively from here on out.
-
-#### `.server` directories
-
-In addition to `.server` files, the Remix's Vite plugin also supports `.server` directories.
-Any code in a `.server` directory will be excluded from the client bundle.
-
-```txt
-app
-├── .server 👈 everything in this directory is excluded from the client bundle
-│   ├── auth.ts
-│   └── db.ts
-├── cms.server.ts 👈 everything in this file is excluded from the client bundle
-├── root.tsx
-└── routes
-    └── _index.tsx
-```
-
-`.server` files and directories can be _anywhere_ within your Remix app directory (typically `app/`).
-If you need more control, you can always write your own Vite plugins to exclude other files or directories from any other locations.
 
 ## Migrating
 
@@ -641,137 +693,6 @@ const posts = import.meta.glob("./posts/*.mdx", {
 });
 ```
 
-#### Strict route exports
-
-With Vite, Remix gets stricter about which exports are allowed from your route modules.
-
-Previously, Remix allowed user-defined exports from routes.
-The Remix compiler would then rely on treeshaking to remove any code only intended for use on the server from the client bundle.
-
-```ts filename=app/routes/super-cool.tsx
-// `loader`: always server-only, remove from client bundle 👍
-export const loader = () => {};
-
-// `default`: always client-safe, keep `default` in client bundle 👍
-export default function SuperCool() {}
-
-// User-defined export
-export const mySuperCoolThing = () => {
-  /*
-  Client-safe or server-only? Depends on what code is in here... 🤷
-  Rely on treeshaking to remove from client bundle if it depends on server-only code.
-  */
-};
-```
-
-In contrast, Vite processes each module in isolation during development, so relying on cross-module treeshaking is not an option.
-For most modules, you should already be using `.server` files or directories to isolate server-only code.
-But routes are a special case since they intentionally blend client and server code.
-Remix knows that exports like `loader`, `action`, `headers`, etc. are server-only, so it can safely remove them from the client bundle.
-But there's no way to know when looking at a single route module in isolation whether user-defined exports are server-only.
-That's why Remix's Vite plugin is stricter about which exports are allowed from your route modules.
-
-```ts filename=app/routes/super-cool.tsx
-export const loader = () => {}; // server-only 👍
-export default function SuperCool() {} // client-safe 👍
-
-// Need to decide whether this is client-safe or server-only without any other information 😬
-export const mySuperCoolThing = () => {};
-```
-
-In fact, we'd rather not rely on treeshaking for correctness at all.
-If tomorrow you or your coworker accidentally imports something you _thought_ was client-safe,
-treeshaking will no longer exclude that from your client bundle and you might end up with server code in your app!
-Treeshaking is designed as a pure optimization, so relying on it for correctness is brittle.
-
-So instead of treeshaking, its better to be explicit about what code is client-safe and what code is server-only.
-For route modules, that means only exporting Remix route exports.
-For anything else, put it in a separate module and use a `.server` file or directory when needed.
-
-Ultimately, Route exports are Remix API.
-Think of a Remix route module like a function and the exports like named arguments to the function.
-
-```ts
-// Not real API, just a mental model
-const route = createRoute({ loader, mySuperCoolThing });
-//                                  ^^^^^^^^^^^^^^^^
-// Object literal may only specify known properties, and 'mySuperCoolThing' does not exist in type 'RemixRoute'
-```
-
-Just like how you shouldn't pass unexpected named arguments to a function, you shouldn't create unexpected exports from a route module.
-The result is that Remix is simpler and more predictable.
-In short, Vite made us eat our veggies, but turns out they were delicious all along!
-
-👉 **Move any user-defined route exports to a separate module**
-
-For example, here's a route with a user-defined export called `mySuperCoolThing`:
-
-```ts filename=app/routes/super-cool.tsx
-// ✅ This is a valid Remix route export, so it's fine
-export const loader = () => {};
-
-// ✅ This is also a valid Remix route export
-export default function SuperCool() {}
-
-// ❌ This isn't a Remix-specific route export, just something I made up
-export const mySuperCoolThing = () => {};
-```
-
-One option is to colocate your route and related utilities in the same directory if your routing convention allows it.
-For example, with the default route convention in v2:
-
-```ts filename=app/routes/super-cool/route.tsx
-export const loader = () => {};
-
-export default function SuperCool() {}
-```
-
-```ts filename=app/routes/super-cool/utils.ts
-// If this was server-only code, I'd rename this file to "utils.server.ts"
-export const mySuperCoolThing = () => {};
-```
-
-##### Full Stack components
-
-[Full stack components][fullstack-components] are components that are colocated in the same file as a resource route and exported for use in other routes.
-They access data from a resource route by fetching that route's URL.
-
-Conceptually, it's tempting to think of full stack components as a new concept,
-but as far as Remix is concerned, they are standard React components.
-Looking closer, they only depend on the resource route's URL and the type for the corresponding `loader`.
-That means they are shared components with _zero_ runtime dependencies on code from the resource route.
-Organize them they way you would organize any shared component.
-
-For better intuition, consider a full stack component that needs to fetch data from multiple resource routes.
-It doesn't belong to any particular resource route.
-
-👉 **Move full stack components alongside other shared components**
-
-```ts filename=app/components/hello.tsx
-export function Hello() {
-  /* ... */
-}
-```
-
-👉 **Export the loader's type from the resource route**
-
-```diff filename=app/routes/api/hello.ts
-+ export type Loader = typeof loader;
-```
-
-👉 **Replace `typeof loader` with `Loader` type**
-
-```diff filename=app/components/hello.tsx
-+ import type { Loader } from "~/routes/api/hello";
-
-export function Hello() {
-  // ...
--   const data = useFetcher<typeof loader>()
-+   const data = useFetcher<Loader>()
-  // ...
-}
-```
-
 ## Troubleshooting
 
 Check out the [known issues with the Remix Vite plugin on GitHub][issues-vite] before filing a new bug report!
@@ -799,14 +720,17 @@ Additionally, you can use the [vite-plugin-cjs-interop plugin][vite-plugin-cjs-i
 Finally, you can also explicitly configure which dependencies to bundle into your server bundled
 with [Vite's `ssr.noExternal` option][ssr-no-external] to emulate the Remix compiler's [`serverDependenciesToBundle`][server-dependencies-to-bundle] with the Remix Vite plugin.
 
-#### Server code not tree shaken in development
+#### Server code errors in browser during development
 
-In production, Vite tree-shakes server-only code from your client bundle, just like the existing Remix compiler.
-However, in development, Vite lazily compiles each module on-demand and therefore _does not_ tree shake across module boundaries.
+If you see errors in the browser console during development that point to server code, you likely need to [explicitly isolate server-only code][explicitly-isolate-server-only-code].
+For example, if you see something like:
 
-If you run into browser errors in development that reference server-only code, be sure to place that [server-only code in a `.server` file][server-only-code].
+```shellscript
+ERROR: `process` is undefined
+```
 
-At first, this might seem like a compromise for DX when compared to the existing Remix compiler, but the mental model is simpler: `.server` is for server-only code, everything else could be on both the client and the server.
+Then you'll need to track down which module is pulling in dependencies that except server-only globals like `process` and isolate code either in a [separate `.server` module or with `vite-env-only`][explicitly-isolate-server-only-code].
+Since Vite uses Rollup to treeshake your code in production, these errors only occur in development.
 
 #### Plugin usage with other Vite-based tools (e.g. Vitest, Storybook)
 
@@ -910,7 +834,6 @@ We're definitely late to the Vite party, but we're excited to be here now!
 [glob-imports]: https://vitejs.dev/guide/features.html#glob-import
 [issues-vite]: https://github.com/remix-run/remix/labels/vite
 [hmr]: ../discussion/hot-module-replacement
-[server-only-code]: ../guides/gotchas#server-code-in-client-bundles
 [vite-team]: https://vitejs.dev/team
 [consider-using-vite]: https://github.com/remix-run/remix/discussions/2427
 [remix-kit]: https://github.com/jrestall/remix-kit
@@ -927,5 +850,8 @@ We're definitely late to the Vite party, but we're excited to be here now!
 [server-dependencies-to-bundle]: https://remix.run/docs/en/main/file-conventions/remix-config#serverdependenciestobundle
 [blues-stack]: https://github.com/remix-run/blues-stack
 [global-node-polyfills]: ../other-api/node#polyfills
-[fullstack-components]: https://www.epicweb.dev/full-stack-components
+[server-bundles]: ./server-bundles
 [vite-plugin-inspect]: https://github.com/antfu/vite-plugin-inspect
+[server-vs-client]: ../discussion/server-vs-client.md
+[vite-env-only]: https://github.com/pcattori/vite-env-only
+[explicitly-isolate-server-only-code]: #splitting-up-client-and-server-code
