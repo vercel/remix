@@ -65,7 +65,7 @@ The default export of the route file is the component that renders. It reads the
 ```tsx lines=[3,15-30]
 import type { LoaderFunctionArgs } from "@remix-run/node"; // or cloudflare/deno
 import { json } from "@remix-run/node"; // or cloudflare/deno
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form } from "@remix-run/react";
 
 export async function loader({
   request,
@@ -80,7 +80,7 @@ export async function loader({
 export default function Component() {
   const user = useLoaderData<typeof loader>();
   return (
-    <Form action="/account">
+    <Form method="post" action="/account">
       <h1>Settings for {user.displayName}</h1>
 
       <input
@@ -109,7 +109,7 @@ import type {
   LoaderFunctionArgs,
 } from "@remix-run/node"; // or cloudflare/deno
 import { json } from "@remix-run/node"; // or cloudflare/deno
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form } from "@remix-run/react";
 
 export async function loader({
   request,
@@ -124,7 +124,7 @@ export async function loader({
 export default function Component() {
   const user = useLoaderData<typeof loader>();
   return (
-    <Form action="/account">
+    <Form method="post" action="/account">
       <h1>Settings for {user.displayName}</h1>
 
       <input
