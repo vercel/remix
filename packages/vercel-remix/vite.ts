@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { Project } from "ts-morph";
 import { getConfig, type BaseFunctionConfig } from "@vercel/static-config";
 import type { Preset } from "@remix-run/dev/vite/plugin";
@@ -60,7 +60,8 @@ export function vercelPreset(): Preset {
             buildManifest,
             remixConfig,
           });
-          writeFileSync(".vercel-remix-result.json", `${json}\n`);
+          mkdirSync(".vercel", { recursive: true });
+          writeFileSync(".vercel/remix-build-result.json", `${json}\n`);
         },
       };
     },
