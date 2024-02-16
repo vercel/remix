@@ -136,6 +136,18 @@ async function copyBuildToDist() {
   );
 
   await Promise.all(copyQueue);
+
+  // For the Vercel Remix Vite preset, the `Preset` type import needs to be adjusted
+  let vercelRemixViteTypesPath = 'packages/vercel-remix/vite.d.ts';
+  let vercelRemixViteTypesData = await fse.readFile(vercelRemixViteTypesPath, 'utf8');
+  await fse.writeFile(
+    vercelRemixViteTypesPath,
+    vercelRemixViteTypesData.replace(
+      "@remix-run/dev/vite/plugin",
+      "@remix-run/dev/dist/vite/plugin"
+    )
+  );
+
   console.log(
     chalk.green(
       "  ✅ Successfully copied build files to package dist directories!"
