@@ -4,8 +4,6 @@ import { getConfig, type BaseFunctionConfig } from "@vercel/static-config";
 import type { Preset } from "@remix-run/dev/vite/plugin";
 import type { ConfigRoute } from "@remix-run/dev/config/routes";
 
-type ConfigRouteWithConfig = ConfigRoute & { config?: BaseFunctionConfig };
-
 function hash(config: Record<string, unknown>): string {
   let str = JSON.stringify(config);
   return Buffer.from(str).toString("base64url");
@@ -58,9 +56,8 @@ export function vercel(): Preset {
         buildEnd({ buildManifest, remixConfig }) {
           if (buildManifest) {
             for (let route of Object.values(buildManifest.routes)) {
-              (route as ConfigRouteWithConfig).config = configCache.get(
-                route.id
-              );
+              (route as typeof route & { config?: BaseFunctionConfig }).config =
+                configCache.get(route.id);
             }
           }
           writeJson(".vercel-remix-result.json", {
