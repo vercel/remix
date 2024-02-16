@@ -22,12 +22,21 @@
       "browser": "./dist/edge/server.js",
       "default": "./server.js"
     },
+    "./vite": {
+      "types": "./vite.d.ts",
+      "default": "./dist/vite.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
     "@remix-run/node": "2.6.0",
     "@remix-run/server-runtime": "2.6.0",
-    "isbot": "^3.6.8"
+    "@vercel/static-config": "3.0.0",
+    "isbot": "^3.6.8",
+    "ts-morph": "12.0.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "2.6.0"
   },
   "peerDependencies": {
     "react": "*",
