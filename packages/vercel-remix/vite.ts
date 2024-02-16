@@ -56,10 +56,14 @@ export function vercelPreset(): Preset {
                 configCache.get(route.id);
             }
           }
-          let json = JSON.stringify({
-            buildManifest,
-            remixConfig,
-          });
+          let json = JSON.stringify(
+            {
+              buildManifest,
+              remixConfig,
+            },
+            null,
+            2
+          );
           mkdirSync(".vercel", { recursive: true });
           writeFileSync(".vercel/remix-build-result.json", `${json}\n`);
         },
