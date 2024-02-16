@@ -51,6 +51,8 @@
     "globals.d.ts",
     "server.js",
     "server.d.ts",
+    "vite.js",
+    "vite.d.ts",
     "CHANGELOG.md",
     "LICENSE.md",
     "README.md"
