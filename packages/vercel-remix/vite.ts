@@ -9,10 +9,6 @@ function hash(config: Record<string, unknown>): string {
   return Buffer.from(str).toString("base64url");
 }
 
-function writeJson(path: string, data: Record<string, unknown>) {
-  writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
-}
-
 function flattenAndSort(o: Record<string, unknown>) {
   let n: Record<string, unknown> = {};
   let keys: string[] = [];
@@ -21,7 +17,7 @@ function flattenAndSort(o: Record<string, unknown>) {
   return n;
 }
 
-export function vercel(): Preset {
+export function vercelPreset(): Preset {
   let project = new Project();
   let configCache = new Map<string, BaseFunctionConfig>();
 
@@ -60,10 +56,11 @@ export function vercel(): Preset {
                 configCache.get(route.id);
             }
           }
-          writeJson(".vercel-remix-result.json", {
+          let json = JSON.stringify({
             buildManifest,
             remixConfig,
           });
+          writeFileSync(".vercel-remix-result.json", `${json}\n`);
         },
       };
     },
