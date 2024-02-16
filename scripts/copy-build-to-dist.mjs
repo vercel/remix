@@ -109,14 +109,19 @@ async function copyBuildToDist() {
     ],
 
     // `@vercel/remix` stuffs. We want "server" to be placed at the root of the package.
-    ...["globals.js", "globals.d.ts", "server.js", "server.d.ts"].map(
-      (name) => {
-        return [
-          `build/node_modules/@vercel/remix/dist/${name}`,
-          `packages/vercel-remix/${name}`,
-        ];
-      }
-    ),
+    ...[
+      "globals.js",
+      "globals.d.ts",
+      "server.js",
+      "server.d.ts",
+      "vite.js",
+      "vite.d.ts",
+    ].map((name) => {
+      return [
+        `build/node_modules/@vercel/remix/dist/${name}`,
+        `packages/vercel-remix/${name}`,
+      ];
+    }),
   ];
 
   oneOffCopies.forEach(([srcFile, destFile]) =>

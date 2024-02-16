@@ -24,7 +24,7 @@
     },
     "./vite": {
       "types": "./vite.d.ts",
-      "default": "./dist/vite.js"
+      "default": "./vite.js"
     },
     "./package.json": "./package.json"
   },
