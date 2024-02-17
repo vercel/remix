@@ -20,6 +20,7 @@ function flattenAndSort(o: Record<string, unknown>) {
 export function vercelPreset(): Preset {
   let project = new Project();
   let configCache = new Map<string, BaseFunctionConfig>();
+  let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
   function getRouteConfig(branch: ConfigRoute[], index = branch.length - 1) {
     let route = branch[index];
@@ -47,13 +48,18 @@ export function vercelPreset(): Preset {
           }
           config = flattenAndSort(config);
           configCache.set(route.id, config);
-          return `${config.runtime}-${hash(config)}`;
+          let name = `${config.runtime}-${hash(config)}`;
+          if (!bundleConfigs.has(name)) {
+            bundleConfigs.set(name, config);
+          }
+          return name;
         },
         buildEnd({ buildManifest, remixConfig }) {
-          if (buildManifest) {
-            for (let route of Object.values(buildManifest.routes)) {
-              (route as typeof route & { config?: BaseFunctionConfig }).config =
-                configCache.get(route.id);
+          if (buildManifest?.serverBundles) {
+            for (let bundle of Object.values(buildManifest.serverBundles)) {
+              (
+                bundle as typeof bundle & { config?: BaseFunctionConfig }
+              ).config = bundleConfigs.get(bundle.id);
             }
           }
           let json = JSON.stringify(
