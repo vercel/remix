@@ -19,19 +19,19 @@ function flattenAndSort(o: Record<string, unknown>) {
 
 export function vercelPreset(): Preset {
   let project = new Project();
-  let configCache = new Map<string, BaseFunctionConfig>();
+  let routeConfigs = new Map<string, BaseFunctionConfig>();
   let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
   function getRouteConfig(branch: ConfigRoute[], index = branch.length - 1) {
     let route = branch[index];
-    let config = configCache.get(route.id);
+    let config = routeConfigs.get(route.id);
     if (!config) {
       // @ts-expect-error Meh...
       config = getConfig(project, route.file) || {};
       if (index > 0) {
         Object.setPrototypeOf(config, getRouteConfig(branch, index - 1));
       }
-      configCache.set(route.id, config);
+      routeConfigs.set(route.id, config);
     }
     return config;
   }
@@ -41,25 +41,34 @@ export function vercelPreset(): Preset {
     remixConfig() {
       return {
         serverBundles({ branch }) {
-          let route = branch[branch.length - 1];
           let config = getRouteConfig(branch);
           if (!config.runtime) {
             config.runtime = "nodejs";
           }
           config = flattenAndSort(config);
-          configCache.set(route.id, config);
-          let name = `${config.runtime}-${hash(config)}`;
-          if (!bundleConfigs.has(name)) {
-            bundleConfigs.set(name, config);
+          let id = `${config.runtime}-${hash(config)}`;
+          if (!bundleConfigs.has(id)) {
+            bundleConfigs.set(id, config);
           }
-          return name;
+          return id;
         },
         buildEnd({ buildManifest, remixConfig }) {
-          if (buildManifest?.serverBundles) {
+          if (buildManifest?.serverBundles && bundleConfigs.size) {
             for (let bundle of Object.values(buildManifest.serverBundles)) {
-              (
-                bundle as typeof bundle & { config?: BaseFunctionConfig }
-              ).config = bundleConfigs.get(bundle.id);
+              let bundleWtihConfig = {
+                ...bundle,
+                config: bundleConfigs.get(bundle.id),
+              };
+              buildManifest.serverBundles[bundle.id] = bundleWtihConfig;
+            }
+          }
+          if (buildManifest?.routes && routeConfigs.size) {
+            for (let route of Object.values(buildManifest.routes)) {
+              let routeWtihConfig = {
+                ...route,
+                config: routeConfigs.get(route.id),
+              };
+              buildManifest.routes[route.id] = routeWtihConfig;
             }
           }
           let json = JSON.stringify(
