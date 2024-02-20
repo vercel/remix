@@ -47,6 +47,7 @@
   },
   "files": [
     "dist/",
+    "defaults/",
     "globals.js",
     "globals.d.ts",
     "server.js",
