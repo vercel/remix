@@ -42,9 +42,8 @@ export function vercelPreset(): Preset {
   return {
     name: "vercel",
     remixConfig({ remixUserConfig }) {
-      console.log(remixUserConfig);
       return {
-        serverBundles: remixUserConfig.ssr
+        serverBundles: remixUserConfig.ssr !== false
           ? ({ branch }) => {
               let config = getRouteConfig(branch);
               if (!config.runtime) {
@@ -66,7 +65,6 @@ export function vercelPreset(): Preset {
                     entryServerPath
                   );
                 }
-                console.log({ entryServerPath });
               }
 
               config = flattenAndSort(config);
