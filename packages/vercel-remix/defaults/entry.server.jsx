@@ -1,5 +1,5 @@
-import { RemixServer } from '@remix-run/react';
-import { handleRequest } from '@vercel/remix';
+import { RemixServer } from "@remix-run/react";
+import { handleRequest } from "@vercel/remix";
 
 export default function (
   request,
@@ -7,7 +7,7 @@ export default function (
   responseHeaders,
   remixContext
 ) {
-  const remixServer = <RemixServer context={remixContext} url={request.url} />;
+  let remixServer = <RemixServer context={remixContext} url={request.url} />;
   return handleRequest(
     request,
     responseStatusCode,
