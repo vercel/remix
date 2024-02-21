@@ -29,7 +29,7 @@ export function vercelPreset(): Preset {
     let route = branch[index];
     let config = routeConfigs.get(route.id);
     if (!config) {
-      // @ts-expect-error Meh...
+      // @ts-expect-error TODO: figure out why TypeScript is complaining here…
       config = getConfig(project, route.file) || {};
       if (index > 0) {
         Object.setPrototypeOf(config, getRouteConfig(branch, index - 1));
@@ -43,6 +43,11 @@ export function vercelPreset(): Preset {
     name: "vercel",
     remixConfig({ remixUserConfig }) {
       return {
+        /**
+         * Invoked once per leaf route. Reads the `export const config`
+         * of the route file (and all parent routes) and hashes the
+         * combined config to determine the server bundle ID.
+         */
         serverBundles: remixUserConfig.ssr !== false
           ? ({ branch }) => {
               let config = getRouteConfig(branch);
@@ -50,6 +55,9 @@ export function vercelPreset(): Preset {
                 config.runtime = "nodejs";
               }
 
+              // If there are any "edge" runtime routes, then a special
+              // `entry.server` needs to be used. So copy that file into
+              // the app directory, unless the project has defined their own
               if (config.runtime === "edge" && !entryServerPath) {
                 let appDirectory = remixUserConfig.appDirectory ?? "app";
                 let entryServerFile = readdirSync(appDirectory).find((f) =>
@@ -75,9 +83,16 @@ export function vercelPreset(): Preset {
               return id;
             }
           : undefined,
+
+        /**
+         * Invoked at the end of the `remix vite:build` command.
+         *   - Clean up the `entry.server` file if one was copied.
+         *   - Serialize the `buildManifest` and `remixConfig` objects
+         *     to the `.vercel/remix-build-result.json` file, including
+         *     the static configs parsed from each route and server bundle.
+         */
         buildEnd({ buildManifest, remixConfig }) {
           if (addedEntryServer && entryServerPath) {
-            // Clean up after ourselves
             rmSync(entryServerPath);
           }
 
