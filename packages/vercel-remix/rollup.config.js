@@ -12,6 +12,7 @@ module.exports = function rollup() {
   return [
     getAdapterConfig("vercel-remix"),
     getAdapterConfig("vercel-remix", "server.ts"),
+    getAdapterConfig("vercel-remix", "vite.ts"),
     edgeConfig,
     getAdapterConfig("vercel-remix", "edge/server.ts"),
   ];

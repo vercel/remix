@@ -22,12 +22,21 @@
       "browser": "./dist/edge/server.js",
       "default": "./server.js"
     },
+    "./vite": {
+      "types": "./vite.d.ts",
+      "default": "./vite.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
     "@remix-run/node": "2.7.2",
     "@remix-run/server-runtime": "2.7.2",
-    "isbot": "^3.6.8"
+    "@vercel/static-config": "3.0.0",
+    "isbot": "^3.6.8",
+    "ts-morph": "12.0.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "2.7.2"
   },
   "peerDependencies": {
     "react": "*",
@@ -38,10 +47,13 @@
   },
   "files": [
     "dist/",
+    "defaults/",
     "globals.js",
     "globals.d.ts",
     "server.js",
     "server.d.ts",
+    "vite.js",
+    "vite.d.ts",
     "CHANGELOG.md",
     "LICENSE.md",
     "README.md"
