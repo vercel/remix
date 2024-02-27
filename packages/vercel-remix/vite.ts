@@ -47,9 +47,24 @@ export function vercelPreset(): Preset {
 
       // If there are any "edge" runtime routes, then a special
       // `entry.server` needs to be used. So copy that file into
-      // the app directory, unless the project has defined their own
+      // the app directory.
       if (config.runtime === "edge" && !entryServerPath) {
         let appDirectory = remixUserConfig.appDirectory ?? "app";
+
+        // Print a warning if the project has an `entry.server` file
+        let entryServerFile = readdirSync(appDirectory).find(
+          (f) => basename(f, extname(f)) === 'entry.server'
+        );
+        if (entryServerFile) {
+          console.warn(
+            `WARN: Vercel uses its own \`enter.server\` file, so the file "${join(
+              appDirectory,
+              entryServerFile
+            )}" has been deleted.`
+          );
+          console.warn(`WARN: You should commit this change.`);
+        }
+
         entryServerPath = join(appDirectory, "entry.server.jsx");
         cpSync(join(__dirname, "defaults/entry.server.jsx"), entryServerPath);
       }
