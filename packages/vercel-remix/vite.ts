@@ -21,7 +21,6 @@ function flattenAndSort(o: Record<string, unknown>) {
 export function vercelPreset(): Preset {
   let project = new Project();
   let entryServerPath: string | undefined;
-  let addedEntryServer = false;
   let routeConfigs = new Map<string, BaseFunctionConfig>();
   let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
@@ -51,19 +50,8 @@ export function vercelPreset(): Preset {
       // the app directory, unless the project has defined their own
       if (config.runtime === "edge" && !entryServerPath) {
         let appDirectory = remixUserConfig.appDirectory ?? "app";
-        let entryServerFile = readdirSync(appDirectory).find(
-          (f) => basename(f, extname(f)) === 'entry.server'
-        );
-        if (entryServerFile) {
-          entryServerPath = join(appDirectory, entryServerFile);
-        } else {
-          entryServerPath = join(appDirectory, "entry.server.jsx");
-          addedEntryServer = true;
-          cpSync(
-            join(__dirname, "defaults/entry.server.jsx"),
-            entryServerPath
-          );
-        }
+        entryServerPath = join(appDirectory, "entry.server.jsx");
+        cpSync(join(__dirname, "defaults/entry.server.jsx"), entryServerPath);
       }
 
       config = flattenAndSort(config);
@@ -76,7 +64,7 @@ export function vercelPreset(): Preset {
   }
 
   let buildEnd: VitePluginConfig['buildEnd'] = ({ buildManifest, remixConfig }) => {
-    if (addedEntryServer && entryServerPath) {
+    if (entryServerPath) {
       rmSync(entryServerPath);
     }
 
