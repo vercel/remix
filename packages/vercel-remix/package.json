@@ -29,16 +29,19 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@remix-run/node": "2.8.0",
-    "@remix-run/server-runtime": "2.8.0",
     "@vercel/static-config": "3.0.0",
     "isbot": "^3.6.8",
     "ts-morph": "12.0.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "2.7.2"
+    "@remix-run/dev": "2.8.0",
+    "@remix-run/node": "2.8.0",
+    "@remix-run/server-runtime": "2.8.0"
   },
   "peerDependencies": {
+    "@remix-run/dev": "2.8.0",
+    "@remix-run/node": "2.8.0",
+    "@remix-run/server-runtime": "2.8.0",
     "react": "*",
     "react-dom": "*"
   },
