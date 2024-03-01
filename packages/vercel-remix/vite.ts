@@ -20,7 +20,6 @@ function flattenAndSort(o: Record<string, unknown>) {
 
 export function vercelPreset(): Preset {
   let project = new Project();
-  let entryServerPath: string | undefined;
   let routeConfigs = new Map<string, BaseFunctionConfig>();
   let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
@@ -46,9 +45,8 @@ export function vercelPreset(): Preset {
       }
 
       // If there are any "edge" runtime routes, then a special
-      // `entry.server` needs to be used. So copy that file into
-      // the app directory.
-      if (config.runtime === "edge" && !entryServerPath) {
+      // `entry.server` needs to be used.
+      if (config.runtime === "edge") {
         let appDirectory = remixUserConfig.appDirectory ?? "app";
 
         // Print a warning if the project has an `entry.server` file
@@ -57,16 +55,11 @@ export function vercelPreset(): Preset {
         );
         if (entryServerFile) {
           console.warn(
-            `WARN: Vercel uses its own \`enter.server\` file, so the file "${join(
-              appDirectory,
-              entryServerFile
-            )}" has been deleted.`
+            `WARN: You are using a custom \`entery.server\` file. Make sure it is compatible with Vercel's edge functions.
+            https://vercel.com/docs/frameworks/remix#streaming`
+            
           );
-          console.warn(`WARN: You should commit this change.`);
         }
-
-        entryServerPath = join(appDirectory, "entry.server.jsx");
-        cpSync(join(__dirname, "defaults/entry.server.jsx"), entryServerPath);
       }
 
       config = flattenAndSort(config);
@@ -79,10 +72,6 @@ export function vercelPreset(): Preset {
   }
 
   let buildEnd: VitePluginConfig['buildEnd'] = ({ buildManifest, remixConfig }) => {
-    if (entryServerPath) {
-      rmSync(entryServerPath);
-    }
-
     if (buildManifest?.serverBundles && bundleConfigs.size) {
       for (let bundle of Object.values(buildManifest.serverBundles)) {
         let bundleWtihConfig = {
@@ -131,7 +120,7 @@ export function vercelPreset(): Preset {
 
         /**
          * Invoked at the end of the `remix vite:build` command.
-         *   - Clean up the `entry.server` file if one was copied.
+         *   - Warning about `entry.server` file if using "edge" runtime.
          *   - Serialize the `buildManifest` and `remixConfig` objects
          *     to the `.vercel/remix-build-result.json` file, including
          *     the static configs parsed from each route and server bundle.
