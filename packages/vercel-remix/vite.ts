@@ -106,7 +106,11 @@ export function vercelPreset(): Preset {
         let usesVercelRemixPackage = /["']@vercel\/remix['"]/.test(
           originalEntryServerContents
         );
-        if (!usesVercelRemixPackage) {
+        if (usesVercelRemixPackage) {
+          console.log(
+            `[vc] Detected "${entryServerFile}" using \`@vercel/remix\``
+          );
+        } else {
           console.warn(
             `WARN: The \`@vercel/remix\` package was not detected in your "${entryServerFile}" file.`
           );
@@ -129,10 +133,9 @@ export function vercelPreset(): Preset {
     }
   });
 
-  function createServerBundles(
-    remixUserConfig: VitePluginConfig
-  ): VitePluginConfig["serverBundles"] {
-    return ({ branch }) => {
+  let createServerBundles =
+    (remixUserConfig: VitePluginConfig): VitePluginConfig["serverBundles"] =>
+    ({ branch }) => {
       let config = getRouteConfig(branch);
       if (!config.runtime) {
         config.runtime = "nodejs";
@@ -149,7 +152,6 @@ export function vercelPreset(): Preset {
       }
       return id;
     };
-  }
 
   let buildEnd: VitePluginConfig["buildEnd"] = ({
     buildManifest,
