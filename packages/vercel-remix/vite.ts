@@ -38,8 +38,9 @@ export function vercelPreset(): Preset {
     return config;
   }
 
-  function createServerBundles(remixUserConfig: VitePluginConfig): VitePluginConfig['serverBundles'] {
-    return ({ branch }) => {
+  let createServerBundles =
+    (remixUserConfig: VitePluginConfig): VitePluginConfig["serverBundles"] =>
+    ({ branch }) => {
       let config = getRouteConfig(branch);
       if (!config.runtime) {
         config.runtime = "nodejs";
@@ -76,33 +77,35 @@ export function vercelPreset(): Preset {
       }
       return id;
     };
-  }
 
-  let buildEnd: VitePluginConfig['buildEnd'] = ({ buildManifest, remixConfig }) => {
+  let buildEnd: VitePluginConfig["buildEnd"] = ({
+    buildManifest,
+    remixConfig,
+  }) => {
     if (entryServerPath) {
       rmSync(entryServerPath);
     }
 
     if (buildManifest?.serverBundles && bundleConfigs.size) {
       for (let bundle of Object.values(buildManifest.serverBundles)) {
-        let bundleWtihConfig = {
+        let bundleWithConfig = {
           ...bundle,
           config: bundleConfigs.get(bundle.id),
         };
-        buildManifest.serverBundles[bundle.id] = bundleWtihConfig;
+        buildManifest.serverBundles[bundle.id] = bundleWithConfig;
       }
     }
 
     if (buildManifest?.routes && routeConfigs.size) {
       for (let route of Object.values(buildManifest.routes)) {
-        let routeWtihConfig = {
+        let routeWithConfig = {
           ...route,
           config: routeConfigs.get(route.id),
         };
-        buildManifest.routes[route.id] = routeWtihConfig;
+        buildManifest.routes[route.id] = routeWithConfig;
       }
     }
-    
+
     let json = JSON.stringify(
       {
         buildManifest,
@@ -111,10 +114,10 @@ export function vercelPreset(): Preset {
       null,
       2
     );
-    
+
     mkdirSync(".vercel", { recursive: true });
     writeFileSync(".vercel/remix-build-result.json", `${json}\n`);
-  }
+  };
 
   return {
     name: "vercel",
@@ -125,9 +128,10 @@ export function vercelPreset(): Preset {
          * of the route file (and all parent routes) and hashes the
          * combined config to determine the server bundle ID.
          */
-        serverBundles: remixUserConfig.ssr !== false
-          ? createServerBundles(remixUserConfig)
-          : undefined,
+        serverBundles:
+          remixUserConfig.ssr !== false
+            ? createServerBundles(remixUserConfig)
+            : undefined,
 
         /**
          * Invoked at the end of the `remix vite:build` command.
