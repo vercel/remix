@@ -103,7 +103,7 @@ export function vercelPreset(): Preset {
           vercelEntryServerPath
         );
       } else {
-        let usesVercelRemixPackage = /\b@vercel\/remix\b/.test(
+        let usesVercelRemixPackage = /["']@vercel\/remix['"]/.test(
           originalEntryServerContents
         );
         if (!usesVercelRemixPackage) {
