@@ -120,7 +120,9 @@ export function vercelPreset(): Preset {
           console.warn(
             `WARN: Please see the docs to learn how to use a custom "${entryServerFile}":`
           );
-          console.warn(`WARN: https://vercel.com/docs/frameworks/remix`); // TODO: Update docs and point to correct section
+          console.warn(
+            `WARN: https://vercel.com/docs/frameworks/remix#using-a-custom-app/entry.server-file`
+          );
         }
       }
     } else {
