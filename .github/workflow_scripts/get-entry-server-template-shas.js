@@ -71,7 +71,10 @@ async function main() {
   }
 
   console.log(results);
-  fs.writeFileSync("entry-server-shas.json", JSON.stringify(results, null, 2));
+  fs.writeFileSync(
+    "entry-server-shas.json",
+    JSON.stringify(results, null, 2) + "\n"
+  );
 }
 
 main().catch((err) => {
