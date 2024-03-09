@@ -108,13 +108,13 @@ export function vercelPreset(): Preset {
         );
         if (!usesVercelRemixPackage) {
           console.warn(
-            `WARN: The \`@vercel/remix\` package was not detected in your "${entryServerFile}".`
+            `WARN: The \`@vercel/remix\` package was not detected in your "${entryServerFile}" file.`
           );
           console.warn(
             `WARN: Using the Edge Runtime may not work with your current configuration.`
           );
           console.warn(
-            `WARN: Please see the docs to learn how to write a custom "${entryServerFile}":`
+            `WARN: Please see the docs to learn how to use a custom "${entryServerFile}":`
           );
           console.warn(`WARN: https://vercel.com/docs/frameworks/remix`); // TODO: Update docs and point to correct section
         }
