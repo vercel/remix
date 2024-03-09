@@ -167,21 +167,21 @@ export function vercelPreset(): Preset {
 
     if (buildManifest?.serverBundles && bundleConfigs.size) {
       for (let bundle of Object.values(buildManifest.serverBundles)) {
-        let bundleWtihConfig = {
+        let bundleWithConfig = {
           ...bundle,
           config: bundleConfigs.get(bundle.id),
         };
-        buildManifest.serverBundles[bundle.id] = bundleWtihConfig;
+        buildManifest.serverBundles[bundle.id] = bundleWithConfig;
       }
     }
 
     if (buildManifest?.routes && routeConfigs.size) {
       for (let route of Object.values(buildManifest.routes)) {
-        let routeWtihConfig = {
+        let routeWithConfig = {
           ...route,
           config: routeConfigs.get(route.id),
         };
-        buildManifest.routes[route.id] = routeWtihConfig;
+        buildManifest.routes[route.id] = routeWithConfig;
       }
     }
 
