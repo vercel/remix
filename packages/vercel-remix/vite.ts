@@ -81,6 +81,7 @@ export function vercelPreset(): Preset {
   let buildEnd: VitePluginConfig["buildEnd"] = ({
     buildManifest,
     remixConfig,
+    viteConfig
   }) => {
     if (entryServerPath) {
       rmSync(entryServerPath);
@@ -106,10 +107,19 @@ export function vercelPreset(): Preset {
       }
     }
 
+    let assetsDir = viteConfig?.build?.assetsDir;
+
     let json = JSON.stringify(
       {
         buildManifest,
         remixConfig,
+        viteConfig: assetsDir
+          ? {
+              build: {
+                assetsDir,
+              },
+            }
+          : undefined,
       },
       null,
       2
