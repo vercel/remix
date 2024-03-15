@@ -51,6 +51,7 @@
   "files": [
     "dist/",
     "defaults/",
+    "entry-server-shas.json",
     "globals.js",
     "globals.d.ts",
     "server.js",

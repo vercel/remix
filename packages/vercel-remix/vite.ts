@@ -1,11 +1,26 @@
+import { createHash } from "crypto";
 import { Project } from "ts-morph";
 import { join, basename, extname } from "path";
-import { mkdirSync, writeFileSync, cpSync, rmSync, readdirSync } from "fs";
+import {
+  mkdirSync,
+  writeFileSync,
+  cpSync,
+  rmSync,
+  readdirSync,
+  readFileSync,
+} from "fs";
 import { getConfig, type BaseFunctionConfig } from "@vercel/static-config";
 import type { Preset, VitePluginConfig } from "@remix-run/dev/vite/plugin";
 import type { ConfigRoute } from "@remix-run/dev/config/routes";
 
-function hash(config: Record<string, unknown>): string {
+interface EntryServerShas {
+  [sha: string]: {
+    commits: string[];
+    templates: string[];
+  };
+}
+
+function hashConfig(config: Record<string, unknown>): string {
   let str = JSON.stringify(config);
   return Buffer.from(str).toString("base64url");
 }
@@ -18,9 +33,26 @@ function flattenAndSort(o: Record<string, unknown>) {
   return n;
 }
 
+function runOnce<T extends (...args: any[]) => any>(fn: T) {
+  let ran = false;
+  return (...args: Parameters<T>) => {
+    if (ran) return;
+    ran = true;
+    fn(...args);
+  };
+}
+
+function getEntryServerShas(): EntryServerShas {
+  return JSON.parse(
+    readFileSync(join(__dirname, "entry-server-shas.json"), "utf8")
+  );
+}
+
 export function vercelPreset(): Preset {
   let project = new Project();
-  let entryServerPath: string | undefined;
+  let vercelEntryServerPath: string | undefined;
+  let originalEntryServerPath: string | undefined;
+  let originalEntryServerContents: string | undefined;
   let routeConfigs = new Map<string, BaseFunctionConfig>();
   let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
@@ -38,6 +70,71 @@ export function vercelPreset(): Preset {
     return config;
   }
 
+  // If there are any "edge" runtime routes, then the
+  // `entry.server` file needs use the `@vercel/remix` package.
+  //
+  //  - If there is no `entry.server` file, then we copy in the Vercel entry server
+  //  - If there is a `entry.server` file, then we hash the contents to
+  //    try to determine if the file has been modified from a known default
+  //    Remix template.
+  //      - If there's a hash match, we can safely copy in the Vercel entry server
+  //      - If there's no match, then we run a RegExp on the contents to see if `@vercel/remix` is being used
+  //          - If no RegExp match, we print a warning and link to docs, but continue the build
+  let injectVercelEntryServer = runOnce((remixUserConfig: VitePluginConfig) => {
+    let appDirectory = remixUserConfig.appDirectory ?? "app";
+    let entryServerFile = readdirSync(appDirectory).find(
+      (f) => basename(f, extname(f)) === "entry.server"
+    );
+    if (entryServerFile) {
+      originalEntryServerPath = join(appDirectory, entryServerFile);
+      originalEntryServerContents = readFileSync(
+        originalEntryServerPath,
+        "utf8"
+      );
+      let entryServerHash = createHash("sha256")
+        .update(originalEntryServerContents)
+        .digest("hex");
+      if (Object.keys(getEntryServerShas()).includes(entryServerHash)) {
+        console.log(`[vc] Detected unmodified "${entryServerFile}". Copying in default "entry.server.jsx".`);
+        rmSync(originalEntryServerPath);
+        vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
+        cpSync(
+          join(__dirname, "defaults/entry.server.jsx"),
+          vercelEntryServerPath
+        );
+      } else {
+        let usesVercelRemixPackage = /["']@vercel\/remix['"]/.test(
+          originalEntryServerContents
+        );
+        if (usesVercelRemixPackage) {
+          console.log(
+            `[vc] Detected "${entryServerFile}" using \`@vercel/remix\``
+          );
+        } else {
+          console.warn(
+            `WARN: The \`@vercel/remix\` package was not detected in your "${entryServerFile}" file.`
+          );
+          console.warn(
+            `WARN: Using the Edge Runtime may not work with your current configuration.`
+          );
+          console.warn(
+            `WARN: Please see the docs to learn how to use a custom "${entryServerFile}":`
+          );
+          console.warn(
+            `WARN: https://vercel.com/docs/frameworks/remix#using-a-custom-app/entry.server-file`
+          );
+        }
+      }
+    } else {
+      console.log(`[vc] No "entry.server" found. Copying in default "entry.server.jsx".`);
+      vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
+      cpSync(
+        join(__dirname, "defaults/entry.server.jsx"),
+        vercelEntryServerPath
+      );
+    }
+  });
+
   let createServerBundles =
     (remixUserConfig: VitePluginConfig): VitePluginConfig["serverBundles"] =>
     ({ branch }) => {
@@ -46,32 +143,12 @@ export function vercelPreset(): Preset {
         config.runtime = "nodejs";
       }
 
-      // If there are any "edge" runtime routes, then a special
-      // `entry.server` needs to be used. So copy that file into
-      // the app directory.
-      if (config.runtime === "edge" && !entryServerPath) {
-        let appDirectory = remixUserConfig.appDirectory ?? "app";
-
-        // Print a warning if the project has an `entry.server` file
-        let entryServerFile = readdirSync(appDirectory).find(
-          (f) => basename(f, extname(f)) === 'entry.server'
-        );
-        if (entryServerFile) {
-          console.warn(
-            `WARN: Vercel uses its own \`enter.server\` file, so the file "${join(
-              appDirectory,
-              entryServerFile
-            )}" has been deleted.`
-          );
-          console.warn(`WARN: You should commit this change.`);
-        }
-
-        entryServerPath = join(appDirectory, "entry.server.jsx");
-        cpSync(join(__dirname, "defaults/entry.server.jsx"), entryServerPath);
+      if (config.runtime === "edge") {
+        injectVercelEntryServer(remixUserConfig);
       }
 
       config = flattenAndSort(config);
-      let id = `${config.runtime}-${hash(config)}`;
+      let id = `${config.runtime}-${hashConfig(config)}`;
       if (!bundleConfigs.has(id)) {
         bundleConfigs.set(id, config);
       }
@@ -83,8 +160,12 @@ export function vercelPreset(): Preset {
     remixConfig,
     viteConfig
   }) => {
-    if (entryServerPath) {
-      rmSync(entryServerPath);
+    // Clean up any modifications to the `entry.server` files
+    if (vercelEntryServerPath) {
+      rmSync(vercelEntryServerPath);
+      if (originalEntryServerPath && originalEntryServerContents) {
+        writeFileSync(originalEntryServerPath, originalEntryServerContents);
+      }
     }
 
     if (buildManifest?.serverBundles && bundleConfigs.size) {
