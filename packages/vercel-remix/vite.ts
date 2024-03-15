@@ -95,7 +95,7 @@ export function vercelPreset(): Preset {
         .update(originalEntryServerContents)
         .digest("hex");
       if (Object.keys(getEntryServerShas()).includes(entryServerHash)) {
-        console.log(`[vc] Detected unmodified "${entryServerFile}". Copying in default entry.server.jsx.`);
+        console.log(`[vc] Detected unmodified "${entryServerFile}". Copying in default "entry.server.jsx".`);
         rmSync(originalEntryServerPath);
         vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
         cpSync(
@@ -126,7 +126,7 @@ export function vercelPreset(): Preset {
         }
       }
     } else {
-      console.log(`[vc] No "entry.server" found. Copying in default entry.server.jsx.`);
+      console.log(`[vc] No "entry.server" found. Copying in default "entry.server.jsx".`);
       vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
       cpSync(
         join(__dirname, "defaults/entry.server.jsx"),
