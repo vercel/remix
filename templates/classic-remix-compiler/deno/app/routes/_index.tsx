@@ -1,4 +1,7 @@
-export const meta = () => {
+import type { MetaFunction } from "@remix-run/deno";
+import * as React from "react";
+
+export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
     { name: "description", content: "Welcome to Remix!" },
