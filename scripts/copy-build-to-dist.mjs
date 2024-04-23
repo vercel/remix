@@ -2,6 +2,9 @@ import path from "node:path";
 import fse from "fs-extra";
 import chalk from "chalk";
 
+const args = process.argv.slice(2);
+const tsc = process.env.CI || args.includes("--tsc");
+
 const ROOT_DIR = process.cwd();
 const PACKAGES_PATH = path.join(ROOT_DIR, "packages");
 const DEFAULT_BUILD_PATH = path.join(ROOT_DIR, "build");
@@ -91,22 +94,24 @@ async function copyBuildToDist() {
       "build/node_modules/@remix-run/dev/server-build.js",
       "packages/remix-dev/server-build.js",
     ],
-    // server-build.d.ts only built by tsc to dist/.  Copy outside of dist/
-    // both in build/ and packages/ dir
-    [
-      "build/node_modules/@remix-run/dev/dist/server-build.d.ts",
-      "build/node_modules/@remix-run/dev/server-build.d.ts",
-    ],
-    [
-      "build/node_modules/@remix-run/dev/dist/server-build.d.ts",
-      "packages/remix-dev/server-build.d.ts",
-    ],
-    // globals.d.ts shim written outside of dist/ in above, copy to packages/
-    // dir outside of dist/
-    [
-      "build/node_modules/@remix-run/node/globals.d.ts",
-      "packages/remix-node/globals.d.ts",
-    ],
+    ...(tsc
+      ? [
+          [
+            "build/node_modules/@remix-run/dev/dist/server-build.d.ts",
+            "build/node_modules/@remix-run/dev/server-build.d.ts",
+          ],
+          [
+            "build/node_modules/@remix-run/dev/dist/server-build.d.ts",
+            "packages/remix-dev/server-build.d.ts",
+          ],
+          // globals.d.ts shim written outside of dist/ in above, copy to packages/
+          // dir outside of dist/
+          [
+            "build/node_modules/@remix-run/node/globals.d.ts",
+            "packages/remix-node/globals.d.ts",
+          ],
+        ]
+      : []),
 
     // `@vercel/remix` stuffs. We want "server" to be placed at the root of the package.
     ...[
@@ -188,7 +193,7 @@ async function getPackageBuildPaths(moduleRootDir) {
     return packageBuilds;
   } catch (_) {
     console.error(
-      "No build files found. Run `yarn build` before running this script."
+      "No build files found. Run `pnpm build` before running this script."
     );
     process.exit(1);
   }

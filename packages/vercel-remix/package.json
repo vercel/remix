@@ -28,6 +28,9 @@
     },
     "./package.json": "./package.json"
   },
+  "scripts": {
+    "tsc": "tsc"
+  },
   "dependencies": {
     "@vercel/static-config": "3.0.0",
     "isbot": "^3.6.8",
