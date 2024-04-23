@@ -18,11 +18,11 @@ jobs:
         with:
           registry-url: "https://registry.npmjs.org"
           node-version-file: ".nvmrc"
-          cache: "yarn"
+          cache: "pnpm"
       - name: Install
-        run: yarn --frozen-lockfile
+        run: pnpm i
       - name: Build
-        run : yarn build:vercel
+        run : pnpm build:vercel
       - name: Update package
         id: update-package
         uses: actions/github-script@v6
