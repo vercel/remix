@@ -272,7 +272,6 @@ export async function createAppFixture(fixture: Fixture, mode?: ServerMode) {
 
       app.all(
         "*",
-        // @ts-expect-error
         createExpressHandler({
           build: fixture.build,
           mode: mode || ServerMode.Production,
