@@ -2,10 +2,9 @@
   "include": ["**/*.ts"],
   "exclude": ["dist", "__tests__", "node_modules"],
   "compilerOptions": {
-    "lib": ["ES2022"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "target": "ES2022",
     "module": "ES2022",
-    "composite": true,
 
     "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
@@ -13,6 +12,9 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "rootDir": ".",
-    "outDir": "../../build/node_modules/@vercel/remix/dist"
+    "outDir": "../../build/node_modules/@vercel/remix/dist",
+
+    // Avoid naming conflicts between lib.dom.d.ts and globals.ts
+    "skipLibCheck": true
   }
 }
