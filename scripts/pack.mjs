@@ -6,7 +6,7 @@ const publicDir = new URL("public/", root);
 
 mkdirSync(publicDir, { recursive: true });
 const remixDevDir = new URL("packages/remix-dev/", root);
-spawnSync("yarn", ["pack"], { cwd: remixDevDir, stdio: "inherit" });
+spawnSync("pnpm", ["pack"], { cwd: remixDevDir, stdio: "inherit" });
 const remixDevTarball = readdirSync(remixDevDir).find((f) =>
   f.endsWith(".tgz")
 );
@@ -17,7 +17,7 @@ renameSync(
 );
 
 const vercelRemixDir = new URL("packages/vercel-remix/", root);
-spawnSync("yarn", ["pack"], { cwd: vercelRemixDir, stdio: "inherit" });
+spawnSync("pnpm", ["pack"], { cwd: vercelRemixDir, stdio: "inherit" });
 const vercelRemixTarball = readdirSync(vercelRemixDir).find((f) =>
   f.endsWith(".tgz")
 );
