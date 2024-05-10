@@ -1,6 +1,6 @@
 {
   "name": "@vercel/remix",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "Isomorphic runtime + adapter for Remix on Vercel",
   "repository": {
     "type": "git",

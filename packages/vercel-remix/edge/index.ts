@@ -10,6 +10,8 @@ export { handleRequest } from "./entry.server";
 export {
   createRequestHandler,
   createSession,
+  unstable_defineLoader,
+  unstable_defineAction,
   defer,
   broadcastDevReady,
   logDevReady,
