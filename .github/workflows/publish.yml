@@ -36,11 +36,11 @@ jobs:
             const script = require('./.github/workflow_scripts/update-package.js');
             return await script({ github, context }, "${{ inputs.version-postfix }}");
       - name: Publish @vercel/remix
-        run: cd packages/vercel-remix && pnpm publish
+        run: cd packages/vercel-remix && pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
       - name: Publish @vercel/remix-run-dev
-        run: cd packages/remix-dev && pnpm publish
+        run: cd packages/remix-dev && pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
       - name: Trigger update workflow on "vercel/vercel"
