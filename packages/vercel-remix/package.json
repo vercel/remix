@@ -37,14 +37,14 @@
     "ts-morph": "12.0.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "2.9.1",
-    "@remix-run/node": "2.9.1",
-    "@remix-run/server-runtime": "2.9.1"
+    "@remix-run/dev": "2.9.2",
+    "@remix-run/node": "2.9.2",
+    "@remix-run/server-runtime": "2.9.2"
   },
   "peerDependencies": {
-    "@remix-run/dev": "2.9.1",
-    "@remix-run/node": "2.9.1",
-    "@remix-run/server-runtime": "2.9.1",
+    "@remix-run/dev": "2.9.2",
+    "@remix-run/node": "2.9.2",
+    "@remix-run/server-runtime": "2.9.2",
     "react": "*",
     "react-dom": "*"
   },
