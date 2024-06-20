@@ -47,41 +47,51 @@ export const createKvSessionStorageFactory = (
     cookie,
     prefix = "session",
   }: KvSessionStorageOptions) => {
+    type S = SessionIdStorageStrategy<Data, FlashData>;
+
+    let createData: S["createData"] = async (data, expires) => {
+      while (true) {
+        let baseId = genRanHex(16);
+        let id = `${prefix}:${baseId}`;
+        if ((await kv.exists(id)) === 0) {
+          let str = JSON.stringify(data);
+          if (expires) {
+            await kv.set(id, str, { pxat: expires.getTime() });
+          } else {
+            await kv.set(id, str);
+          }
+          return id;
+        }
+      }
+    };
+
+    let readData: S["readData"] = async (id) => {
+      return (await kv.get(id)) ?? null;
+    };
+
+    let updateData: S["updateData"] = async (id, data, expires) => {
+      let str = JSON.stringify(data);
+      if (str === "{}") {
+        // If the data is empty then delete the session key
+        return deleteData(id);
+      }
+      if (expires) {
+        await kv.set(id, str, { pxat: expires.getTime() });
+      } else {
+        await kv.set(id, str);
+      }
+    };
+
+    let deleteData: S["deleteData"] = async (id) => {
+      await kv.del(id);
+    };
+
     return createSessionStorage<Data, FlashData>({
       cookie,
-      async createData(data, expires) {
-        while (true) {
-          let baseId = genRanHex(16);
-          let id = `${prefix}:${baseId}`;
-          if ((await kv.exists(id)) === 0) {
-            let str = JSON.stringify(data);
-            if (expires) {
-              await kv.set(id, str, { pxat: expires.getTime() });
-            } else {
-              await kv.set(id, str);
-            }
-            return id;
-          }
-        }
-      },
-      async readData(id) {
-        return (await kv.get(id)) ?? null;
-      },
-      async updateData(id, data, expires) {
-        let str = JSON.stringify(data);
-        if (str === "{}") {
-          // If the data is empty then delete the session key
-          return this.deleteData(id);
-        }
-        if (expires) {
-          await kv.set(id, str, { pxat: expires.getTime() });
-        } else {
-          await kv.set(id, str);
-        }
-      },
-      async deleteData(id) {
-        await kv.del(id);
-      },
+      createData,
+      readData,
+      updateData,
+      deleteData,
     });
   };
 };
