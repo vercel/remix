@@ -45,22 +45,24 @@ module.exports = async ({ github, context }) => {
         fs.readFileSync(vercelRemixPackageJSONPath, 'utf-8')
       );
       vercelRemixPackageJSON.version =
-        vercelRemixPackageJSON.peerDependencies["@remix-run/dev"] =
-        vercelRemixPackageJSON.peerDependencies["@remix-run/node"] =
-        vercelRemixPackageJSON.peerDependencies["@remix-run/server-runtime"] =
-        vercelRemixPackageJSON.devDependencies["@remix-run/dev"] =
-        vercelRemixPackageJSON.devDependencies["@remix-run/node"] =
-        vercelRemixPackageJSON.devDependencies["@remix-run/server-runtime"] =
+        vercelRemixPackageJSON.peerDependencies['@remix-run/dev'] =
+        vercelRemixPackageJSON.peerDependencies['@remix-run/node'] =
+        vercelRemixPackageJSON.peerDependencies['@remix-run/server-runtime'] =
+        vercelRemixPackageJSON.devDependencies['@remix-run/dev'] =
+        vercelRemixPackageJSON.devDependencies['@remix-run/node'] =
+        vercelRemixPackageJSON.devDependencies['@remix-run/server-runtime'] =
           newVersion;
       fs.writeFileSync(
         vercelRemixPackageJSONPath,
         `${JSON.stringify(vercelRemixPackageJSON, null, 2)}\n`
       );
 
-      execSync('pnpm i');
+      execSync('pnpm i --no-frozen-lockfile');
       execSync('git config --global user.email infra+release@vercel.com');
       execSync('git config --global user.name vercel-release-bot');
-      execSync('git add packages/vercel-remix/package.json pnpm-workspace.yaml pnpm-lock.yaml');
+      execSync(
+        'git add packages/vercel-remix/package.json pnpm-workspace.yaml pnpm-lock.yaml'
+      );
       execSync(`git commit -m "Set version in @vercel/remix to ${newVersion}"`);
       execSync('git push origin main');
 
@@ -79,7 +81,7 @@ module.exports = async ({ github, context }) => {
         repo: 'remix',
         ref: 'main',
       });
-      const title = `Merge Conflict ❌`;
+      const title = 'Merge Conflict ❌';
       const body = `Latest commit: ${commit.data.html_url}
 
 ## How to resolve
