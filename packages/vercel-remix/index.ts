@@ -11,6 +11,7 @@ export { handleRequest } from "./entry.server";
 export {
   createRequestHandler,
   createSession,
+  unstable_data,
   unstable_defineLoader,
   unstable_defineAction,
   defer,
@@ -22,10 +23,10 @@ export {
   MaxPartSizeExceededError,
   redirect,
   redirectDocument,
+  replace,
   unstable_composeUploadHandlers,
   unstable_createMemoryUploadHandler,
   unstable_parseMultipartFormData,
-  unstable_data,
 } from "@remix-run/server-runtime";
 
 export type {
