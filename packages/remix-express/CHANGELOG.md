@@ -1,5 +1,20 @@
 # `@remix-run/express`
 
+## 2.13.1
+
+### Patch Changes
+
+- Updated dependencies:
+  - `@remix-run/node@2.13.1`
+
+## 2.13.0
+
+### Patch Changes
+
+- Fix adapter logic for aborting `request.signal` so we don't incorrectly abort on the `close` event for successful requests ([#10046](https://github.com/remix-run/remix/pull/10046))
+- Updated dependencies:
+  - `@remix-run/node@2.13.0`
+
 ## 2.12.1
 
 ### Patch Changes
@@ -117,7 +132,7 @@
 
 ### Minor Changes
 
-- Vite: Add a new `basename` option to the Vite plugin, allowing users to set the internal React Router [`basename`](https://reactrouter.com/en/main/routers/create-browser-router#basename) in order to to serve their applications underneath a subpath ([#8145](https://github.com/remix-run/remix/pull/8145))
+- Vite: Add a new `basename` option to the Vite plugin, allowing users to set the internal React Router [`basename`](https://reactrouter.com/v6/routers/create-browser-router#basename) in order to to serve their applications underneath a subpath ([#8145](https://github.com/remix-run/remix/pull/8145))
 
 ### Patch Changes
 
