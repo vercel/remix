@@ -145,8 +145,11 @@ async function copyBuildToDist() {
   // For the Vercel Remix Vite preset, the `Preset` type import needs to
   // be adjusted, since in this monorepo it's written against the source,
   // but consumers of the package will import for the `dist` compiled types.
-  let vercelRemixViteTypesPath = 'packages/vercel-remix/vite.d.ts';
-  let vercelRemixViteTypesData = await fse.readFile(vercelRemixViteTypesPath, 'utf8');
+  let vercelRemixViteTypesPath = "packages/vercel-remix/vite.d.ts";
+  let vercelRemixViteTypesData = await fse.readFile(
+    vercelRemixViteTypesPath,
+    "utf8"
+  );
   await fse.writeFile(
     vercelRemixViteTypesPath,
     vercelRemixViteTypesData.replace(

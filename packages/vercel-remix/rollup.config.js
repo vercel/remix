@@ -1,4 +1,4 @@
-const { dirname } = require('path');
+const { dirname } = require("path");
 
 const { getAdapterConfig } = require("../../rollup.utils");
 

@@ -12,9 +12,10 @@ import { Cancel } from "../../cancel";
  * the assets manifest. This is used in the server entry module to access the
  * assets manifest in the server build.
  */
-export function serverAssetsManifestPlugin(refs: {
-  manifestChannel: Channel.Type<Manifest>;
-},
+export function serverAssetsManifestPlugin(
+  refs: {
+    manifestChannel: Channel.Type<Manifest>;
+  },
   routes: RouteManifest
 ): Plugin {
   let filter = assetsManifestVirtualModule.filter;

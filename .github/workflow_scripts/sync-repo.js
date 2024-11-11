@@ -1,6 +1,6 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = async ({ github, context }) => {
   const { owner, repo } = context.repo;
@@ -8,26 +8,26 @@ module.exports = async ({ github, context }) => {
   try {
     const packageJSONPath = path.join(
       __dirname,
-      '..',
-      '..',
-      'packages',
-      'remix-dev',
-      'package.json'
+      "..",
+      "..",
+      "packages",
+      "remix-dev",
+      "package.json"
     );
 
-    let packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8'));
+    let packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf-8"));
 
     const existingVersion = packageJSON.version;
 
     await github.rest.repos.mergeUpstream({
       owner,
       repo,
-      branch: 'main',
+      branch: "main",
     });
 
-    execSync('git pull origin main');
+    execSync("git pull origin main");
 
-    packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8'));
+    packageJSON = JSON.parse(fs.readFileSync(packageJSONPath, "utf-8"));
 
     const newVersion = packageJSON.version;
 
@@ -35,53 +35,53 @@ module.exports = async ({ github, context }) => {
       // Sync the version in the `@vercel/remix` package
       const vercelRemixPackageJSONPath = path.join(
         __dirname,
-        '..',
-        '..',
-        'packages',
-        'vercel-remix',
-        'package.json'
+        "..",
+        "..",
+        "packages",
+        "vercel-remix",
+        "package.json"
       );
       const vercelRemixPackageJSON = JSON.parse(
-        fs.readFileSync(vercelRemixPackageJSONPath, 'utf-8')
+        fs.readFileSync(vercelRemixPackageJSONPath, "utf-8")
       );
       vercelRemixPackageJSON.version =
-        vercelRemixPackageJSON.peerDependencies['@remix-run/dev'] =
-        vercelRemixPackageJSON.peerDependencies['@remix-run/node'] =
-        vercelRemixPackageJSON.peerDependencies['@remix-run/server-runtime'] =
-        vercelRemixPackageJSON.devDependencies['@remix-run/dev'] =
-        vercelRemixPackageJSON.devDependencies['@remix-run/node'] =
-        vercelRemixPackageJSON.devDependencies['@remix-run/server-runtime'] =
+        vercelRemixPackageJSON.peerDependencies["@remix-run/dev"] =
+        vercelRemixPackageJSON.peerDependencies["@remix-run/node"] =
+        vercelRemixPackageJSON.peerDependencies["@remix-run/server-runtime"] =
+        vercelRemixPackageJSON.devDependencies["@remix-run/dev"] =
+        vercelRemixPackageJSON.devDependencies["@remix-run/node"] =
+        vercelRemixPackageJSON.devDependencies["@remix-run/server-runtime"] =
           newVersion;
       fs.writeFileSync(
         vercelRemixPackageJSONPath,
         `${JSON.stringify(vercelRemixPackageJSON, null, 2)}\n`
       );
 
-      execSync('pnpm i --no-frozen-lockfile');
-      execSync('git config --global user.email infra+release@vercel.com');
-      execSync('git config --global user.name vercel-release-bot');
+      execSync("pnpm i --no-frozen-lockfile");
+      execSync("git config --global user.email infra+release@vercel.com");
+      execSync("git config --global user.name vercel-release-bot");
       execSync(
-        'git add packages/vercel-remix/package.json pnpm-workspace.yaml pnpm-lock.yaml'
+        "git add packages/vercel-remix/package.json pnpm-workspace.yaml pnpm-lock.yaml"
       );
       execSync(`git commit -m "Set version in @vercel/remix to ${newVersion}"`);
-      execSync('git push origin main');
+      execSync("git push origin main");
 
       await github.rest.actions.createWorkflowDispatch({
         owner,
         repo,
-        workflow_id: 'publish.yml',
-        ref: 'main',
+        workflow_id: "publish.yml",
+        ref: "main",
       });
     }
   } catch (err) {
     // Conflict detected
     if (err.status === 409) {
       const commit = await github.rest.repos.getCommit({
-        owner: 'remix-run',
-        repo: 'remix',
-        ref: 'main',
+        owner: "remix-run",
+        repo: "remix",
+        ref: "main",
       });
-      const title = 'Merge Conflict ❌';
+      const title = "Merge Conflict ❌";
       const body = `Latest commit: ${commit.data.html_url}
 
 ## How to resolve
