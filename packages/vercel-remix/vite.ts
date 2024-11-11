@@ -11,7 +11,7 @@ import {
 } from "fs";
 import { getConfig, type BaseFunctionConfig } from "@vercel/static-config";
 import type { Preset, VitePluginConfig } from "@remix-run/dev/vite/plugin";
-import type { ConfigRoute } from "@remix-run/dev/config/routes";
+import type { RouteManifestEntry } from "@remix-run/dev/config/routes";
 
 interface EntryServerShas {
   [sha: string]: {
@@ -56,7 +56,10 @@ export function vercelPreset(): Preset {
   let routeConfigs = new Map<string, BaseFunctionConfig>();
   let bundleConfigs = new Map<string, BaseFunctionConfig>();
 
-  function getRouteConfig(branch: ConfigRoute[], index = branch.length - 1) {
+  function getRouteConfig(
+    branch: RouteManifestEntry[],
+    index = branch.length - 1
+  ) {
     let route = branch[index];
     let config = routeConfigs.get(route.id);
     if (!config) {
@@ -95,7 +98,9 @@ export function vercelPreset(): Preset {
         .update(originalEntryServerContents)
         .digest("hex");
       if (Object.keys(getEntryServerShas()).includes(entryServerHash)) {
-        console.log(`[vc] Detected unmodified "${entryServerFile}". Copying in default "entry.server.jsx".`);
+        console.log(
+          `[vc] Detected unmodified "${entryServerFile}". Copying in default "entry.server.jsx".`
+        );
         rmSync(originalEntryServerPath);
         vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
         cpSync(
@@ -126,7 +131,9 @@ export function vercelPreset(): Preset {
         }
       }
     } else {
-      console.log(`[vc] No "entry.server" found. Copying in default "entry.server.jsx".`);
+      console.log(
+        `[vc] No "entry.server" found. Copying in default "entry.server.jsx".`
+      );
       vercelEntryServerPath = join(appDirectory, "entry.server.jsx");
       cpSync(
         join(__dirname, "defaults/entry.server.jsx"),
@@ -158,7 +165,7 @@ export function vercelPreset(): Preset {
   let buildEnd: VitePluginConfig["buildEnd"] = ({
     buildManifest,
     remixConfig,
-    viteConfig
+    viteConfig,
   }) => {
     // Clean up any modifications to the `entry.server` files
     if (vercelEntryServerPath) {
