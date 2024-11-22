@@ -1454,13 +1454,13 @@ importers:
         version: 12.0.0
     devDependencies:
       '@remix-run/dev':
-        specifier: 2.14.0
+        specifier: 2.15.0
         version: link:../remix-dev
       '@remix-run/node':
-        specifier: 2.14.0
+        specifier: 2.15.0
         version: link:../remix-node
       '@remix-run/server-runtime':
-        specifier: 2.14.0
+        specifier: 2.15.0
         version: link:../remix-server-runtime
 
 packages:
