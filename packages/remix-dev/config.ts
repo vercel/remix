@@ -806,7 +806,7 @@ export async function resolveConfig(
     }
   }
 
-  logFutureFlagWarnings(future);
+  logFutureFlagWarnings(appConfig.future || {});
 
   isFirstLoad = false;
 
@@ -918,15 +918,15 @@ function logFutureFlagWarning(args: { flag: string; message: string }) {
   });
 }
 
-export function logFutureFlagWarnings(future: FutureConfig) {
-  if (!future.v3_fetcherPersist) {
+export function logFutureFlagWarnings(future: Partial<FutureConfig>) {
+  if (future.v3_fetcherPersist === undefined) {
     logFutureFlagWarning({
       flag: "v3_fetcherPersist",
       message: "Fetcher persistence behavior is changing in React Router v7",
     });
   }
 
-  if (!future.v3_lazyRouteDiscovery) {
+  if (future.v3_lazyRouteDiscovery === undefined) {
     logFutureFlagWarning({
       flag: "v3_lazyRouteDiscovery",
       message:
@@ -934,7 +934,7 @@ export function logFutureFlagWarnings(future: FutureConfig) {
     });
   }
 
-  if (!future.v3_relativeSplatPath) {
+  if (future.v3_relativeSplatPath === undefined) {
     logFutureFlagWarning({
       flag: "v3_relativeSplatPath",
       message:
@@ -942,14 +942,14 @@ export function logFutureFlagWarnings(future: FutureConfig) {
     });
   }
 
-  if (!future.v3_singleFetch) {
+  if (future.v3_singleFetch === undefined) {
     logFutureFlagWarning({
       flag: "v3_singleFetch",
       message: "Data fetching is changing to a single fetch in React Router v7",
     });
   }
 
-  if (!future.v3_throwAbortReason) {
+  if (future.v3_throwAbortReason === undefined) {
     logFutureFlagWarning({
       flag: "v3_throwAbortReason",
       message:
