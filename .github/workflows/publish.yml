@@ -1,0 +1,52 @@
+name: Publish @vercel/remix-run-dev
+on:
+  workflow_dispatch:
+    inputs:
+      version-postfix:
+        type: string
+        description: "Optional version postfix to be added onto the end of the @vercel/remix-run-dev version. Example: `patch.1` will become: `1.13.0-patch.1`"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8.10.5
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          registry-url: "https://registry.npmjs.org"
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - name: Install
+        run: pnpm i
+      - name: Build
+        run: pnpm build:vercel
+      - name: Update package
+        id: update-package
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_TOKEN_PULL_REQUESTS }}
+          script: |
+            const script = require('./.github/workflow_scripts/update-package.js');
+            return await script({ github, context }, "${{ inputs.version-postfix }}");
+      - name: Publish @vercel/remix
+        run: cd packages/vercel-remix && pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+      - name: Publish @vercel/remix-run-dev
+        run: cd packages/remix-dev && pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+      - name: Trigger update workflow on "vercel/vercel"
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_TOKEN_PULL_REQUESTS }}
+          script: |
+            const script = require('./.github/workflow_scripts/trigger-builder-update.js');
+            await script({ github, context }, ${{ steps.update-package.outputs.result }});
