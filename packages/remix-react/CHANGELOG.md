@@ -1,5 +1,66 @@
 # `@remix-run/react`
 
+## 2.16.6
+
+### Patch Changes
+
+- Fix `window is not defined` error in Single Fetch when server-rendering `<PrefetchPageLinks>` ([#10601](https://github.com/remix-run/remix/pull/10601))
+- upgrate turbo-stream to 2.4.1 ([#9973](https://github.com/remix-run/remix/pull/9973))
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.6`
+
+## 2.16.5
+
+### Patch Changes
+
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.5`
+
+## 2.16.4
+
+### Patch Changes
+
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.4`
+
+## 2.16.3
+
+### Patch Changes
+
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.3`
+
+## 2.16.2
+
+### Patch Changes
+
+- Fix `shouldRevalidate` behavior for `clientLoader`-only routes in `ssr:true` apps ([#10527](https://github.com/remix-run/remix/pull/10527))
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.2`
+
+## 2.16.1
+
+### Patch Changes
+
+- Fix Vite import analysis of `@remix-run/react` failing when the package is not marked as external ([#10528](https://github.com/remix-run/remix/pull/10528))
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.1`
+
+## 2.16.0
+
+### Patch Changes
+
+- Don't apply Single Fetch revalidation de-optimization when in SPA mode since there is no server HTTP request ([#10479](https://github.com/remix-run/remix/pull/10479))
+
+- When using Lazy Route Discovery (`future.v3_lazyRouteDiscovery`), Remix will now detect manifest version mismatches after a new deploy and trigger a document reload to sync up any active client sessions with the newly deployed version ([#10498](https://github.com/remix-run/remix/pull/10498))
+
+  - On navigations to undiscovered routes, this mismatch will trigger a document reload of the destination path
+  - On `fetcher` calls to undiscovered routes, this mismatch will trigger a document reload of the current path
+  - While performing Eager Route Discovery on rendered `<Link>` components, mismatches will result in a no-op
+
+- Updated dependencies:
+  - `@remix-run/server-runtime@2.16.0`
+
 ## 2.15.3
 
 ### Patch Changes
