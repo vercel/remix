@@ -23,6 +23,7 @@ module.exports = {
     "packages/remix-serve",
     "packages/remix-server-runtime",
     "packages/remix-testing",
+    "packages/vercel-remix",
   ],
   reporters:
     process.env.GITHUB_ACTIONS == null
