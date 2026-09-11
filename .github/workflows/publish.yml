@@ -1,16 +1,22 @@
-name: Publish @vercel/remix-run-dev
+name: Publish @vercel/remix and @vercel/remix-run-dev
 on:
   workflow_dispatch:
     inputs:
       version-postfix:
         type: string
-        description: "Optional version postfix to be added onto the end of the @vercel/remix-run-dev version. Example: `patch.1` will become: `1.13.0-patch.1`"
+        description: "Optional version postfix for both packages. Example: `patch.1` will become: `1.13.0-patch.1`"
+permissions:
+  contents: read
 jobs:
   publish:
+    if: github.repository == 'vercel/remix' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
       - name: Setup pnpm
@@ -18,33 +24,44 @@ jobs:
         with:
           version: 8.10.5
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          registry-url: "https://registry.npmjs.org"
           node-version-file: ".nvmrc"
-          cache: "pnpm"
+          package-manager-cache: false
       - name: Install
-        run: pnpm i
+        run: pnpm install --frozen-lockfile
       - name: Build
         run: pnpm build:vercel
       - name: Update package
         id: update-package
-        uses: actions/github-script@v6
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          VERSION_POSTFIX: ${{ inputs.version-postfix }}
         with:
           github-token: ${{ secrets.GH_TOKEN_PULL_REQUESTS }}
           script: |
             const script = require('./.github/workflow_scripts/update-package.js');
-            return await script({ github, context }, "${{ inputs.version-postfix }}");
+            return await script({ github, context }, process.env.VERSION_POSTFIX);
+      - name: Setup node for trusted publishing
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22.14.0
+          package-manager-cache: false
+      - name: Setup npm for trusted publishing
+        run: npm install --global npm@11.5.1
+      # Pack with pnpm to resolve workspace dependencies before publishing with npm.
       - name: Publish @vercel/remix
-        run: cd packages/vercel-remix && pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+        working-directory: packages/vercel-remix
+        run: |
+          pnpm pack --pack-destination "$RUNNER_TEMP/vercel-remix"
+          npm publish "$RUNNER_TEMP/vercel-remix/"*.tgz --access public --tag latest
       - name: Publish @vercel/remix-run-dev
-        run: cd packages/remix-dev && pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+        working-directory: packages/remix-dev
+        run: |
+          pnpm pack --pack-destination "$RUNNER_TEMP/vercel-remix-run-dev"
+          npm publish "$RUNNER_TEMP/vercel-remix-run-dev/"*.tgz --access public --tag latest
       - name: Trigger update workflow on "vercel/vercel"
-        uses: actions/github-script@v6
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           github-token: ${{ secrets.GH_TOKEN_PULL_REQUESTS }}
           script: |

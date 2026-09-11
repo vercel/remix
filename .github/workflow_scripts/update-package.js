@@ -19,6 +19,7 @@ module.exports = async ({ github, context }, versionPostfix) => {
   );
 
   devPackageJSON.name = "@vercel/remix-run-dev";
+  devPackageJSON.repository.url = "https://github.com/vercel/remix";
 
   if (versionPostfix !== "") {
     if (!/[a-z]+\.\d+/.test(versionPostfix)) {
