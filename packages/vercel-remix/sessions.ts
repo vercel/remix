@@ -49,6 +49,11 @@ export const createKvSessionStorageFactory = (
   }: KvSessionStorageOptions) => {
     type S = SessionIdStorageStrategy<Data, FlashData>;
 
+    let sessionIdPattern = new RegExp(
+      `^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:` + "[0-9a-f]{16}$"
+    );
+    let isSessionId = (id: string) => sessionIdPattern.test(id);
+
     let createData: S["createData"] = async (data, expires) => {
       while (true) {
         let baseId = genRanHex(16);
@@ -66,10 +71,16 @@ export const createKvSessionStorageFactory = (
     };
 
     let readData: S["readData"] = async (id) => {
+      if (!isSessionId(id)) {
+        return null;
+      }
       return (await kv.get(id)) ?? null;
     };
 
     let updateData: S["updateData"] = async (id, data, expires) => {
+      if (!isSessionId(id)) {
+        return;
+      }
       let str = JSON.stringify(data);
       if (str === "{}") {
         // If the data is empty then delete the session key
@@ -83,7 +94,9 @@ export const createKvSessionStorageFactory = (
     };
 
     let deleteData: S["deleteData"] = async (id) => {
-      await kv.del(id);
+      if (isSessionId(id)) {
+        await kv.del(id);
+      }
     };
 
     return createSessionStorage<Data, FlashData>({
